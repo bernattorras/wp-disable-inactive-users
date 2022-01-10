@@ -26,6 +26,19 @@ class WPDIU {
 	public static $days_limit = 90;
 
 	/**
+	 * Class constructor.
+	 */
+	public function __construct() {
+
+		// Overwrite the default $days_limit with the provided number if it is set in the WPDIU_DAYS_LIMIT constant.
+		if ( defined( 'WPDIU_DAYS_LIMIT' ) ) {
+			if ( is_int( WPDIU_DAYS_LIMIT ) && 1 <= WPDIU_DAYS_LIMIT ) {
+				self::$days_limit = WPDIU_DAYS_LIMIT;
+			}
+		}
+	}
+
+	/**
 	 * WPDIU Init
 	 */
 	public static function init() {
