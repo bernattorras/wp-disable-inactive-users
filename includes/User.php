@@ -2,6 +2,9 @@
 
 namespace WPDIU;
 
+use WP_User;
+use WP_Error;
+
 /**
  * User class
  * This class handles all the user functionlity.
@@ -15,7 +18,7 @@ class User {
 	 * @param string  $password - The password of the user.
 	 * @return WP_User $user or WP_Error - The current user object if the user is active. A WP_Error otherwise.
 	 */
-	public static function check_if_user_active( \WP_User $user, string $password ) {
+	public static function check_if_user_active( WP_User $user, string $password ) {
 
 		$status = get_user_meta( $user->ID, 'user_status' );
 
@@ -32,7 +35,7 @@ class User {
 	 * @param \WP_User $user - The requested user.
 	 * @return boolean - True if the user is active. False otherwise.
 	 */
-	public static function is_user_active( \WP_User $user ) {
+	public static function is_user_active( WP_User $user ) {
 		return true;
 	}
 
@@ -47,7 +50,7 @@ class User {
 		$username = $user->user_login;
 		$wpdiu    = new \WPDIU();
 
-		return new \WP_Error(
+		return new WP_Error(
 			'inactive_user',
 			sprintf(
 				/* translators: %1$s: User's username. %2$s: The days limit. */
