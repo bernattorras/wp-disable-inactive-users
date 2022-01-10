@@ -1,7 +1,7 @@
 {
     "name": "bernattorras/wp-disable-inactive-users",
     "description": "A WordPress plugin to disable inactive users automatically.",
-    "type": "project",
+    "type": "wordpress-plugin",
     "autoload": {
         "psr-4": {
             "WPDIU\\": "includes/"
