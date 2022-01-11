@@ -30,12 +30,8 @@ class WPDIU {
 	 */
 	public function __construct() {
 
-		// Overwrite the default $days_limit with the provided number if it is set in the WPDIU_DAYS_LIMIT constant.
-		if ( defined( 'WPDIU_DAYS_LIMIT' ) ) {
-			if ( is_int( WPDIU_DAYS_LIMIT ) && 1 <= WPDIU_DAYS_LIMIT ) {
-				self::$days_limit = WPDIU_DAYS_LIMIT;
-			}
-		}
+		// Overwrite the default $days_limit with the provided number if it is changed using the 'wpdiu_days_limit' filter.
+		self::$days_limit = apply_filters( 'wpdiu_days_limit', self::$days_limit );
 	}
 
 	/**
