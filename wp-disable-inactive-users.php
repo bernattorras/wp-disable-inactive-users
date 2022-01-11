@@ -41,15 +41,44 @@ class WPDIU {
 	/**
 	 * WPDIU Init
 	 */
-	public static function init() {
+	public function init() {
 
 		// Composer autoload.
 		require_once __DIR__ . '/vendor/autoload.php';
 
 		// Validate the user to check if it's active.
 		add_action( 'wp_authenticate_user', [ 'WPDIU\User', 'check_if_user_active' ], 10, 2 );
+
+		register_activation_hook( __FILE__, [ $this, 'wpdiu_activate' ] );
+		register_deactivation_hook( __FILE__, [ $this, 'wpdiu_deactivate' ] );
+
+	}
+
+
+	/**
+	 * Activation functionality
+	 * - Sets the 'wpdiu_activation' option to the current time() when the plugin gets activated (if it doesn't exist already).
+	 *
+	 * @return void
+	 */
+	public function wpdiu_activate() {
+		if ( false === get_option( 'wpdiu_activation' ) ) {
+			add_option( 'wpdiu_activation', time() );
+		}
+	}
+
+	/**
+	 * Deactivation functionality
+	 * - Deletes the 'wpdiu_activation' option.
+	 *
+	 * @return void
+	 */
+	public function wpdiu_deactivate() {
+		if ( false !== get_option( 'wpdiu_activation' ) ) {
+			delete_option( 'wpdiu_activation' );
+		}
 	}
 
 }
-
-WPDIU::init();
+$wpdiu = new WPDIU();
+$wpdiu->init();
