@@ -34,7 +34,7 @@ class User {
 	 * Checks if the provided user is active.
 	 *
 	 * @param \WP_User $user - The requested user.
-	 * @return boolean - True if the user is active. False otherwise.
+	 * @return boolean - True if the user is active. False otherwise ($days_limit exceeded since last login).
 	 */
 	public static function is_user_active( WP_User $user ) {
 
@@ -48,22 +48,22 @@ class User {
 
 		if ( '' === $user_last_login ) {
 			// The user doesn't have the 'last_login' meta yet.
-			// Check if the plugin was enabled more than $days_limit days ago.
-			$activation = \WPDIU::$activation_date;
-
+			$activation      = \WPDIU::$activation_date;
 			$activation_date = new DateTime( $activation );
 
+			// Check if the plugin was enabled more than $days_limit days ago (they haven't logged in since the plugin was activated).
 			$days_difference = self::get_days_between_dates( $activation_date, $now_date, false );
 
 		} else {
 			// The user has a 'last_login' meta.
 			$user_last_login_date = new DateTime( $user_last_login );
+
 			// Check if the last login date is older than the $days_limit.
 			$days_difference = self::get_days_between_dates( $user_last_login_date, $now_date, false );
 		}
 
 		if ( $days_difference > $days_limit ) {
-			// The plugin was enabled more than $days_limit days ago. The user needs to be disabled.
+			// $days_limit Exceeded. The user needs to be disabled.
 			$is_active = false;
 		}
 
