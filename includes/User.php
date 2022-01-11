@@ -22,7 +22,7 @@ class User {
 
 		$status = get_user_meta( $user->ID, 'user_status' );
 
-		if ( self::is_user_active( $user ) ) {
+		if ( ! self::is_user_active( $user ) ) {
 			return self::throw_inactive_error( $user );
 		}
 
