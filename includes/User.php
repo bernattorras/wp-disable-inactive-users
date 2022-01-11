@@ -4,6 +4,7 @@ namespace WPDIU;
 
 use WP_User;
 use WP_Error;
+use DateTime;
 
 /**
  * User class
@@ -36,7 +37,37 @@ class User {
 	 * @return boolean - True if the user is active. False otherwise.
 	 */
 	public static function is_user_active( WP_User $user ) {
-		return true;
+
+		$days_limit = \WPDIU::$days_limit;
+		$is_active  = true;
+		$now        = current_time( 'mysql' );
+		$now_date   = new DateTime( $now );
+
+		// Check if user has last_login meta.
+		$user_last_login = get_user_meta( $user->ID, 'last_login', true );
+
+		if ( '' === $user_last_login ) {
+			// The user doesn't have the 'last_login' meta yet.
+			// Check if the plugin was enabled more than $days_limit days ago.
+			$activation = \WPDIU::$activation_date;
+
+			$activation_date = new DateTime( $activation );
+
+			$days_difference = self::get_days_between_dates( $activation_date, $now_date, false );
+
+		} else {
+			// The user has a 'last_login' meta.
+			$user_last_login_date = new DateTime( $user_last_login );
+			// Check if the last login date is older than the $days_limit.
+			$days_difference = self::get_days_between_dates( $user_last_login_date, $now_date, false );
+		}
+
+		if ( $days_difference > $days_limit ) {
+			// The plugin was enabled more than $days_limit days ago. The user needs to be disabled.
+			$is_active = false;
+		}
+
+		return $is_active;
 	}
 
 	/**
@@ -59,5 +90,19 @@ class User {
 				$wpdiu::$days_limit
 			)
 		);
+	}
+
+	/**
+	 * Returns the difference of days between two dates.
+	 *
+	 * @param DateTime $date1 - The starting date.
+	 * @param DateTime $date2 - The ending date.
+	 * @param boolean  $absolute - If it is set to false, the number of days will be negative if the $date1 is older than $date2.
+	 * @return integer
+	 */
+	public static function get_days_between_dates( DateTime $date1, DateTime $date2, $absolute = true ) {
+		$interval = $date1->diff( $date2) ;
+		// Return a negative number if $absolute is set to false and $date1 is older than $date2.
+		return ( ! $absolute && $interval->invert ) ? - $interval->days : $interval->days;
 	}
 }

@@ -26,12 +26,22 @@ class WPDIU {
 	public static $days_limit = 90;
 
 	/**
+	 * Plugin activation date
+	 *
+	 * @var [time]
+	 */
+	public static $activation_date;
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
 
 		// Overwrite the default $days_limit with the provided number if it is changed using the 'wpdiu_days_limit' filter.
 		self::$days_limit = apply_filters( 'wpdiu_days_limit', self::$days_limit );
+
+		// Overwrite the default $days_limit with the provided number if it is changed using the 'wpdiu_days_limit' filter.
+		self::$activation_date = apply_filters( 'wpdiu_activation_date', get_option( 'wpdiu_activation' ) );
 	}
 
 	/**
@@ -47,7 +57,6 @@ class WPDIU {
 
 		register_activation_hook( __FILE__, [ $this, 'wpdiu_activate' ] );
 		register_deactivation_hook( __FILE__, [ $this, 'wpdiu_deactivate' ] );
-
 	}
 
 
@@ -59,7 +68,8 @@ class WPDIU {
 	 */
 	public function wpdiu_activate() {
 		if ( false === get_option( 'wpdiu_activation' ) ) {
-			add_option( 'wpdiu_activation', time() );
+			$current_time = current_time( 'mysql' );
+			add_option( 'wpdiu_activation', $current_time );
 		}
 	}
 
