@@ -87,7 +87,6 @@ class UserTest extends WP_UnitTestCase {
 	 */
 	public function test_dissabled_message() {
 
-		$user_class = new \WPDIU\User();
 		$user       = get_user_by( 'id', 1 );
 
 		$result = self::$user_class::throw_inactive_error( $user );
