@@ -6,6 +6,8 @@ use WP_User;
 use WP_Error;
 use DateTime;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * User class
  * This class handles all the user functionlity.
