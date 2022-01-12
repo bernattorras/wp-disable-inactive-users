@@ -1,4 +1,9 @@
 <?php
+/**
+ * A class to handle User and login functionality.
+ *
+ * @package WordPress
+ */
 
 namespace WPDIU;
 
@@ -17,10 +22,12 @@ class User {
 	/**
 	 * Adds/updates the 'last_login' user meta with the current time when the user logs in.
 	 *
+	 * @param string  $user_login - The user login name.
+	 * @param WP_User $user - The user object.
 	 * @return void
 	 */
 	public static function update_last_login( string $user_login, WP_User $user ) {
-		update_user_meta( $user->ID, 'last_login', current_time( 'mysql') );
+		update_user_meta( $user->ID, 'last_login', current_time( 'mysql' ) );
 	}
 
 	/**
@@ -112,7 +119,7 @@ class User {
 	 * @return integer
 	 */
 	public static function get_days_between_dates( DateTime $date1, DateTime $date2, $absolute = true ) {
-		$interval = $date1->diff( $date2) ;
+		$interval = $date1->diff( $date2 );
 		// Return a negative number if $absolute is set to false and $date1 is older than $date2.
 		return ( ! $absolute && $interval->invert ) ? - $interval->days : $interval->days;
 	}
