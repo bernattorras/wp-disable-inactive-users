@@ -31,7 +31,6 @@ class UserTest extends WP_UnitTestCase {
 	 */
 	public static $test_user;
 
-
 	/**
 	 * Set up the test case initially.
 	 */
@@ -151,6 +150,24 @@ class UserTest extends WP_UnitTestCase {
 				self::$diu_class::$days_limit
 			)
 		);
+	}
 
+	/**
+	 * Tests if the get_days_between_dates returns the days correcty and if it returns a negative day if the first date is more recent than the second one.
+	 *
+	 * @return void
+	 */
+	public function test_days_between_dates(){
+		$now = new DateTime( current_time( 'mysql' ) );
+		$older_date = new DateTime( current_time( 'mysql' ) );
+		$older_date = $older_date->modify('-1 day');
+
+		// It should return a postive number (1).
+		$days = self::$user_class::get_days_between_dates( $now, $older_date, true );
+		$this->assertSame( $days, 1 );
+
+		// It should return a negative number (-1).
+		$days = self::$user_class::get_days_between_dates( $now, $older_date, false );
+		$this->assertSame( $days, -1 );
 	}
 }
