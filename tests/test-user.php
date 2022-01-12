@@ -61,9 +61,9 @@ class UserTest extends WP_UnitTestCase {
 		$user_name  = 'Unit Test User';
 		$user_id    = username_exists( 'unit_test_user' );
 
-		if ( ! $user_id && false == email_exists( $user_email ) ) {
+		if ( ! $user_id && false === email_exists( $user_email ) ) {
 			$random_password = wp_generate_password( 12, false );
-			$user_id = wp_create_user( $user_name, $random_password, $user_email );
+			$user_id         = wp_create_user( $user_name, $random_password, $user_email );
 
 			self::$test_user = get_user_by( 'id', $user_id );
 
@@ -111,7 +111,7 @@ class UserTest extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function test_user_is_active() {
+	public function test_check_if_user_is_active() {
 		$user = self::$user_class::check_if_user_active( self::$test_user, self::$test_user->user_pass );
 
 		// No error should be returned if the user is active.
@@ -126,9 +126,9 @@ class UserTest extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function test_user_is_disabled(){
+	public function test_user_is_disabled() {
 
-		$days_limit = \WPDIU::$days_limit;
+		$days_limit   = \WPDIU::$days_limit;
 		$current_time = new DateTime( current_time( 'mysql' ) );
 
 		// Add 1 day to the current date + the days limit to make sure that the date exceeds the limit to log in.
@@ -158,7 +158,7 @@ class UserTest extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_days_between_dates(){
-		$now = new DateTime( current_time( 'mysql' ) );
+		$now        = new DateTime( current_time( 'mysql' ) );
 		$older_date = new DateTime( current_time( 'mysql' ) );
 		$older_date = $older_date->modify( '-1 day' );
 
