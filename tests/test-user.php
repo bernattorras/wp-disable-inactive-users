@@ -35,7 +35,7 @@ class UserTest extends WP_UnitTestCase {
 	/**
 	 * Set up the test case initially.
 	 */
-	public static function setUpBeforeClass() {
+	public static function set_up_before_class() {
 		self::$user_class = new \WPDIU\User();
 		self::$diu_class  = new \WPDIU();
 
@@ -47,7 +47,7 @@ class UserTest extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public static function tearDownAfterClass() {
+	public static function tear_down_after_class() {
 		self::delete_test_user();
 	}
 
