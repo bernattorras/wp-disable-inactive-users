@@ -157,7 +157,7 @@ class UserTest extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function test_days_between_dates(){
+	public function test_days_between_dates() {
 		$now        = new DateTime( current_time( 'mysql' ) );
 		$older_date = new DateTime( current_time( 'mysql' ) );
 		$older_date = $older_date->modify( '-1 day' );
