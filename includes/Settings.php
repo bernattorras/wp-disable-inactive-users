@@ -30,6 +30,7 @@ class Settings {
 		// Add the "Is disabled" column in the Users page.
 		add_filter( 'manage_users_columns', [ $this, 'add_inactive_user_column' ] );
 		add_filter( 'manage_users_custom_column', [ $this, 'inactive_user_column_content' ], 10, 3 );
+		add_action( 'admin_head-users.php', [ $this, 'users_page_custom_styles' ] );
 
 		// Add the "Reactivate" user row action and its functionality.
 		add_filter( 'user_row_actions', [ $this, 'reactivate_user_link' ], 10, 2 );
@@ -60,11 +61,19 @@ class Settings {
 		if ( 'inactive_user' === $column_name ) {
 			$value = '-';
 			if ( $disabled ) {
-				echo '<style>.wpdiu_disabled:before { content: "\f147"; display: inline-block; -webkit-font-smoothing: antialiased; font: normal 24px/1 "dashicons"; vertical-align: top;}</style>';
 				$value = '<div class="wpdiu_disabled"></div>';
 			}
 		}
 		return $value;
+	}
+
+	/**
+	 * Adds custom styles to the Users page to style the "Disabled" column.
+	 *
+	 * @return void
+	 */
+	public function users_page_custom_styles() {
+		echo '<style>.wpdiu_disabled:before { content: "\f147"; display: inline-block; -webkit-font-smoothing: antialiased; font: normal 24px/1 "dashicons"; vertical-align: top;}</style>';
 	}
 
 	/**
