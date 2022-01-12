@@ -106,4 +106,51 @@ class UserTest extends WP_UnitTestCase {
 
 		$this->assertSame( $last_login, current_time( 'mysql' ) );
 	}
+
+	/**
+	 * Confirms that the user (with an updated 'last_login' date) is considered active.
+	 *
+	 * @return void
+	 */
+	public function test_user_is_active(){
+		$user = self::$user_class::check_if_user_active( self::$test_user, self::$test_user->user_pass);
+
+		// No error should be returned if the user is active.
+		$this->assertNotWPError( $user );
+
+		// The function should return the same user object.
+		$this->assertEquals( $user, self::$test_user );
+	}
+
+	/**
+	 * Confirms that a user with an old 'last_login' date is disabled.
+	 *
+	 * @return void
+	 */
+	public function test_user_is_disabled(){
+
+		$days_limit = \WPDIU::$days_limit;
+		$current_time = new DateTime( current_time( 'mysql' ) );
+
+		// Add 1 day to the current date + the days limit to make sure that the date exceeds the limit to log in.
+		$older_date = $current_time->modify('-' . ( $days_limit + 1 ). ' day')->format('Y-m-d H:i:s');
+
+		update_user_meta( self::$test_user->ID, 'last_login', $older_date );
+
+		$result = self::$user_class::check_if_user_active( self::$test_user, self::$test_user->user_pass);
+
+		// An error should be returned if the user's 'last_login' date exceeds the days limit.
+		$this->assertWPError( $result );
+		$this->assertSame( $result->get_error_code(), 'inactive_user' );
+		$this->assertSame(
+			$result->get_error_message(),
+			sprintf(
+				/* translators: %1$s: User's username. %2$s: The days limit. */
+				__( '<strong>Error</strong>: The username <strong>%1$s</strong> has been disabled because it has been inactive for %2$s days.', 'wp-disable-inactive-users' ),
+				self::$test_user->user_login,
+				self::$diu_class::$days_limit
+			)
+		);
+
+	}
 }
