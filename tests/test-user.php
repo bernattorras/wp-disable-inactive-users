@@ -94,4 +94,16 @@ class UserTest extends WP_UnitTestCase {
 		$this->assertSame( $result->get_error_code(), 'inactive_user' );
 		$this->assertSame( $result->get_error_message(), '<strong>Error</strong>: The username <strong>admin</strong> has been disabled because it has been inactive for ' . self::$diu_class::$days_limit . ' days.' );
 	}
+
+	/**
+	 * Check if the update_last_login function is storing the current time in mysql format in the 'last_login' user meta.
+	 *
+	 * @return void
+	 */
+	public function test_last_login_meta() {
+		self::$user_class::update_last_login( self::$test_user->user_login, self::$test_user );
+		$last_login = get_user_meta( self::$test_user->ID, 'last_login', true );
+
+		$this->assertSame( $last_login, current_time( 'mysql' ) );
+	}
 }
