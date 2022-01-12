@@ -13,6 +13,15 @@ use DateTime;
 class User {
 
 	/**
+	 * Adds/updates the 'last_login' user meta with the current time when the user logs in.
+	 *
+	 * @return void
+	 */
+	public static function update_last_login( $user_login, $user ) {
+		update_user_meta( $user->ID, 'last_login', current_time( 'mysql') );
+	}
+
+	/**
 	 * Checks if the user that is trying to log in is inactive.
 	 *
 	 * @param WP_User $user - The current user object.

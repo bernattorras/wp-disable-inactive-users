@@ -55,6 +55,10 @@ class WPDIU {
 		// Validate the user to check if it's active.
 		add_action( 'wp_authenticate_user', [ 'WPDIU\User', 'check_if_user_active' ], 10, 2 );
 
+		// Update the last login meta when the user logs in.
+		add_action( 'wp_login', [ 'WPDIU\User', 'update_last_login' ], 10, 2 );
+
+		// Plugin activation and deactivation functionality. 
 		register_activation_hook( __FILE__, [ $this, 'wpdiu_activate' ] );
 		register_deactivation_hook( __FILE__, [ $this, 'wpdiu_deactivate' ] );
 	}
