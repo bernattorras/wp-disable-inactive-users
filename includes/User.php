@@ -39,9 +39,11 @@ class User {
 	 */
 	public static function check_if_user_active( WP_User $user, string $password ) {
 
-		$status = get_user_meta( $user->ID, 'user_status' );
+		$disabled = get_user_meta( $user->ID, 'wpdiu_disabled', true );
 
-		if ( ! self::is_user_active( $user ) ) {
+		if ( $disabled || ! self::is_user_active( $user ) ) {
+			update_user_meta( $user->ID, 'wpdiu_disabled', true );
+			update_user_meta( $user->ID, 'wpdiu_last_login_attempt', current_time( 'mysql' ) );
 			return self::throw_inactive_error( $user );
 		}
 
@@ -63,7 +65,6 @@ class User {
 
 		// Check if user has last_login meta.
 		$user_last_login = get_user_meta( $user->ID, 'last_login', true );
-
 		if ( '' === $user_last_login ) {
 			// The user doesn't have the 'last_login' meta yet.
 			$activation      = \WPDIU::$activation_date;
@@ -123,4 +124,5 @@ class User {
 		// Return a negative number if $absolute is set to false and $date1 is older than $date2.
 		return ( ! $absolute && $interval->invert ) ? - $interval->days : $interval->days;
 	}
+
 }
