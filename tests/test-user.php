@@ -64,11 +64,11 @@ class UserTest extends WP_UnitTestCase {
 		if ( ! $user_id && false == email_exists( $user_email ) ) {
 			$random_password = wp_generate_password( 12, false );
 			$user_id = wp_create_user( $user_name, $random_password, $user_email );
-			
+
 			self::$test_user = get_user_by( 'id', $user_id );
 
 		} else {
-			fwrite(STDERR, __( 'User already exists.', 'wp-disable-inactive-users' ) );
+			fwrite( STDERR, __( 'User already exists.', 'wp-disable-inactive-users' ) );
 		}
 	}
 
@@ -111,8 +111,8 @@ class UserTest extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function test_user_is_active(){
-		$user = self::$user_class::check_if_user_active( self::$test_user, self::$test_user->user_pass);
+	public function test_user_is_active() {
+		$user = self::$user_class::check_if_user_active( self::$test_user, self::$test_user->user_pass );
 
 		// No error should be returned if the user is active.
 		$this->assertNotWPError( $user );
@@ -132,11 +132,11 @@ class UserTest extends WP_UnitTestCase {
 		$current_time = new DateTime( current_time( 'mysql' ) );
 
 		// Add 1 day to the current date + the days limit to make sure that the date exceeds the limit to log in.
-		$older_date = $current_time->modify('-' . ( $days_limit + 1 ). ' day')->format('Y-m-d H:i:s');
+		$older_date = $current_time->modify( '-' . ( $days_limit + 1 ) . ' day' )->format( 'Y-m-d H:i:s' );
 
 		update_user_meta( self::$test_user->ID, 'last_login', $older_date );
 
-		$result = self::$user_class::check_if_user_active( self::$test_user, self::$test_user->user_pass);
+		$result = self::$user_class::check_if_user_active( self::$test_user, self::$test_user->user_pass );
 
 		// An error should be returned if the user's 'last_login' date exceeds the days limit.
 		$this->assertWPError( $result );
@@ -160,7 +160,7 @@ class UserTest extends WP_UnitTestCase {
 	public function test_days_between_dates(){
 		$now = new DateTime( current_time( 'mysql' ) );
 		$older_date = new DateTime( current_time( 'mysql' ) );
-		$older_date = $older_date->modify('-1 day');
+		$older_date = $older_date->modify( '-1 day' );
 
 		// It should return a postive number (1).
 		$days = self::$user_class::get_days_between_dates( $now, $older_date, true );

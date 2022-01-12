@@ -26,6 +26,37 @@ class Settings {
 		// Add the settings page ( Users > Disable Inactive Users ).
 		add_action( 'admin_menu', [ $this, 'wpdiu_add_plugin_page' ] );
 		add_action( 'admin_init', [ $this, 'page_init' ] );
+
+		// Add the "Is disabled" column in the Users page.
+		add_filter( 'manage_users_columns', [ $this, 'add_inactive_user_column' ] );
+		add_filter( 'manage_users_custom_column', [ $this, 'inactive_user_column_content' ], 10, 3 );
+	}
+
+	/**
+	 * Add the "Is inactive" column to the Users page.
+	 *
+	 * @param array $columns - The current User columns.
+	 * @return array $columns - The current User columns.
+	 */
+	public function add_inactive_user_column( $columns ) {
+		$columns['inactive_user'] = 'Is Inactive';
+		return $columns;
+	}
+
+	/**
+	 * Show if a user is inactive.
+	 *
+	 * @param string $value - Custom column output. Default empty.
+	 * @param string $column_name - Column name.
+	 * @param int    $user_id - ID of the currently-listed user.
+	 * @return string $value - "Yes" if the user is disabled, "-" otherwise.
+	 */
+	public function inactive_user_column_content( $value, $column_name, $user_id ) {
+		$user = get_userdata( $user_id );
+		if ( 'inactive_user' === $column_name ) {
+			return $user_id;
+		}
+		return $value;
 	}
 
 	/**
