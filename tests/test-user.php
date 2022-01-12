@@ -87,8 +87,7 @@ class UserTest extends WP_UnitTestCase {
 	 */
 	public function test_dissabled_message() {
 
-		$user       = get_user_by( 'id', 1 );
-
+		$user   = get_user_by( 'id', 1 );
 		$result = self::$user_class::throw_inactive_error( $user );
 
 		$this->assertWPError( $result );
