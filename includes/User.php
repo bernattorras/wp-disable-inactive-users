@@ -94,7 +94,7 @@ class User {
 			'inactive_user',
 			sprintf(
 				/* translators: %1$s: User's username. %2$s: The days limit. */
-				__( '<strong>Error</strong>: The username <strong>%1$s</strong> has been disabled because it has been inactive for %2$s days.' ),
+				__( '<strong>Error</strong>: The username <strong>%1$s</strong> has been disabled because it has been inactive for %2$s days.', 'wp-disable-inactive-users' ),
 				$username,
 				$wpdiu::$days_limit
 			)
