@@ -125,4 +125,14 @@ class User {
 		return ( ! $absolute && $interval->invert ) ? - $interval->days : $interval->days;
 	}
 
+	/**
+	 * Reactivates a user.
+	 *
+	 * @param [type] $user_id - The user ID.
+	 * @return void
+	 */
+	public static function reactivate_user( $user_id ) {
+		delete_user_meta( $user_id, 'last_login' );
+		delete_user_meta( $user_id, 'wpdiu_disabled' );
+	}
 }

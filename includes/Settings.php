@@ -30,6 +30,10 @@ class Settings {
 		// Add the "Is disabled" column in the Users page.
 		add_filter( 'manage_users_columns', [ $this, 'add_inactive_user_column' ] );
 		add_filter( 'manage_users_custom_column', [ $this, 'inactive_user_column_content' ], 10, 3 );
+
+		// Add the "Reactivate" user row action and its functionality.
+		add_filter( 'user_row_actions', [ $this, 'reactivate_user_link' ], 10, 2 );
+		add_action( 'admin_init', [ $this, 'add_admin_listeners' ] );
 	}
 
 	/**
@@ -39,7 +43,7 @@ class Settings {
 	 * @return array $columns - The current User columns.
 	 */
 	public function add_inactive_user_column( $columns ) {
-		$columns['inactive_user'] = 'Is Inactive';
+		$columns['inactive_user'] = 'Disabled';
 		return $columns;
 	}
 
@@ -52,11 +56,61 @@ class Settings {
 	 * @return string $value - "Yes" if the user is disabled, "-" otherwise.
 	 */
 	public function inactive_user_column_content( $value, $column_name, $user_id ) {
-		$user = get_userdata( $user_id );
+		$disabled = get_user_meta( $user_id, 'wpdiu_disabled', true );
 		if ( 'inactive_user' === $column_name ) {
-			return $user_id;
+			$value = '-';
+			if ( $disabled ) {
+				echo '<style>.wpdiu_disabled:before { content: "\f147"; display: inline-block; -webkit-font-smoothing: antialiased; font: normal 24px/1 "dashicons"; vertical-align: top;}</style>';
+				$value = '<div class="wpdiu_disabled"></div>';
+			}
 		}
 		return $value;
+	}
+
+	/**
+	 * Adds the 'Reactivate' link to the user row actions.
+	 *
+	 * @param array   $actions - The user row actions.
+	 * @param WP_User $user - The current user.
+	 * @return array  $actions - The user row actions.
+	 */
+	public function reactivate_user_link( $actions, $user ) {
+		$disabled = get_user_meta( $user->ID, 'wpdiu_disabled', true );
+		if ( $disabled && current_user_can( 'manage_options' ) ) {
+			$actions['wpdiu_reactivate'] = "<a class='wpdiu_reactivate' href='" . wp_nonce_url( "users.php?action=wpdiu_reactivate&amp;user=$user->ID", 'wpdiu-reactivate' ) . "'>" . esc_html__( 'Reactivate', 'wp-disable-inactive-users' ) . '</a>';
+		}
+		return $actions;
+	}
+
+	/**
+	 * Add admin listeners for the 'Reactivation' user row action.
+	 *
+	 * @return void
+	 */
+	public function add_admin_listeners() {
+		if ( ! isset( $_GET['action'] ) || ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'wpdiu-reactivate' ) || ( 'wpdiu_reactivate' !== $_GET['action'] ) || ! isset( $_GET['user'] ) ) {
+				return;
+		}
+
+		/* Reactivate user */
+		\WPDIU\User::reactivate_user( intval( $_GET['user'] ) );
+
+		// Show reactivation admin notices.
+		add_action( 'admin_notices', [ $this, 'reactivation_notice' ] );
+		add_action( 'network_admin_notices', [ $this, 'reactivation_notice' ] );
+	}
+
+	/**
+	 * Show a reactivation admin notice.
+	 *
+	 * @return void
+	 */
+	public function reactivation_notice() {
+		?>
+		<div class="notice notice-success is-dismissible">
+			<p><?php esc_html_e( 'User reactivated!', 'wp-disable-inactive-users' ); ?></p>
+		</div>
+		<?php
 	}
 
 	/**
@@ -80,7 +134,8 @@ class Settings {
 	 * @return void
 	 */
 	public function create_admin_page() {
-		$this->wpdiu_options = get_option( 'wpdiu_settings' ); ?>
+		$this->wpdiu_options = get_option( 'wpdiu_settings' );
+		?>
 
 		<div class="wrap">
 			<h2>WP Disable Inactive Users</h2>
