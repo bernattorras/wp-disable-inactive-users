@@ -17,7 +17,7 @@ class User {
 	 *
 	 * @return void
 	 */
-	public static function update_last_login( $user_login, $user ) {
+	public static function update_last_login( string $user_login, WP_User $user ) {
 		update_user_meta( $user->ID, 'last_login', current_time( 'mysql') );
 	}
 
@@ -85,7 +85,7 @@ class User {
 	 * @param WP_User $user - The current user object.
 	 * @return WP_Error - An error saying that the user is inactive.
 	 */
-	public static function throw_inactive_error( $user ) {
+	public static function throw_inactive_error( WP_User $user ) {
 
 		$username = $user->user_login;
 		$wpdiu    = new \WPDIU();
