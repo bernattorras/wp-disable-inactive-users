@@ -32,6 +32,10 @@ class Settings {
 		add_filter( 'manage_users_custom_column', [ $this, 'inactive_user_column_content' ], 10, 3 );
 		add_action( 'admin_head-users.php', [ $this, 'users_page_custom_styles' ] );
 
+		// Add the "Last login" column in the Users page.
+		add_filter( 'manage_users_columns', [ $this, 'add_last_login_user_column' ] );
+		add_filter( 'manage_users_custom_column', [ $this, 'last_login_user_column_content' ], 10, 3 );
+
 		// Add the "Reactivate" user row action and its functionality.
 		add_filter( 'user_row_actions', [ $this, 'reactivate_user_link' ], 10, 2 );
 		add_action( 'admin_init', [ $this, 'add_admin_listeners' ] );
@@ -74,6 +78,41 @@ class Settings {
 	 */
 	public function users_page_custom_styles() {
 		echo '<style>.wpdiu_disabled:before { content: "\f147"; display: inline-block; -webkit-font-smoothing: antialiased; font: normal 24px/1 "dashicons"; vertical-align: top;}</style>';
+	}
+
+	/**
+	 * Add the "Last logine" column to the Users page.
+	 *
+	 * @param array $columns - The current User columns.
+	 * @return array $columns - The current User columns.
+	 */
+	public function add_last_login_user_column( $columns ) {
+		$columns['last_login'] = 'Last Login';
+		return $columns;
+	}
+
+	/**
+	 * Show the last login date of the user (or the last login attempt if it was blocked)
+	 *
+	 * @param string $value - Custom column output. Default empty.
+	 * @param string $column_name - Column name.
+	 * @param int    $user_id - ID of the currently-listed user.
+	 * @return string $value - "Yes" if the user is disabled, "-" otherwise.
+	 */
+	public function last_login_user_column_content( $value, $column_name, $user_id ) {
+		$disabled           = get_user_meta( $user_id, 'wpdiu_disabled', true );
+		$last_login         = get_user_meta( $user_id, 'last_login', true );
+		$last_login_attempt = get_user_meta( $user_id, 'wpdiu_last_login_attempt', true );
+
+		if ( 'last_login' === $column_name ) {
+			$value = '-';
+			if ( $disabled ) {
+				$value = '<p>' . $last_login_attempt . '</p><i>' . __( '(Blocked attempt)', 'wp-disable-inactive-users' ) . '</i>';
+			} else {
+				$value = '<i class="wpdiu_login"></i>' . $last_login;
+			}
+		}
+		return $value;
 	}
 
 	/**
