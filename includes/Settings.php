@@ -109,10 +109,14 @@ class Settings {
 		$last_login_attempt = get_user_meta( $user_id, 'wpdiu_last_login_attempt', true );
 
 		if ( 'wpdiu_last_login' === $column_name ) {
-			$value = '-';
+			if ( ! $last_login && ! $disabled ) {
+				$value = '-';
+			}
+
 			if ( $disabled ) {
 				$value = '<p><i class="wpdiu_icon wpdiu_blocked"></i>' . $last_login_attempt . '</p>';
 			}
+
 			if ( '' !== $last_login ) {
 				$value .= '<p><i class="wpdiu_icon wpdiu_login"></i>' . $last_login . '</p>';
 			}
