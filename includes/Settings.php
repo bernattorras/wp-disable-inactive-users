@@ -205,8 +205,8 @@ class Settings {
 		?>
 
 		<div class="wrap">
-			<h2>WP Disable Inactive Users</h2>
-			<p>Here are the settings of the WP Disable Inactive Users plugin.</p>
+			<h2><?php echo esc_html_e( 'WP Disable Inactive Users', 'wp-disable-inactive-users' ); ?></h2>
+			<p><?php echo esc_html_e( 'Here are the settings of the WP Disable Inactive Users plugin.', 'wp-disable-inactive-users' ); ?></p>
 			<?php settings_errors(); ?>
 
 			<form method="post" action="options.php">
@@ -241,7 +241,7 @@ class Settings {
 
 		add_settings_field(
 			'dont_disable_roles',
-			'Dont\'t disable the users with the following roles',
+			__( 'Dont\'t disable the users with the following roles', 'wp-disable-inactive-users' ),
 			array( $this, 'dont_disable_roles_callback' ),
 			'wp-disable-inactive-users-admin',
 			'wpdiu_setting_section'
@@ -249,7 +249,7 @@ class Settings {
 
 		add_settings_field(
 			'reminder_email',
-			'Send a reminder email',
+			__( 'Send a reminder email', 'wp-disable-inactive-users' ),
 			array( $this, 'reminder_email_callback' ),
 			'wp-disable-inactive-users-admin',
 			'wpdiu_setting_section'
@@ -257,7 +257,7 @@ class Settings {
 
 		add_settings_field(
 			'disabled_notification',
-			'Send a notification email when a user is disabled',
+			__( 'Send a notification email when a user is disabled', 'wp-disable-inactive-users' ),
 			array( $this, 'disabled_notification_callback' ),
 			'wp-disable-inactive-users-admin',
 			'wpdiu_setting_section'
@@ -359,13 +359,13 @@ class Settings {
 		?>
 		<select name="wpdiu_settings[disabled_notification]" id="disabled_notification">
 			<?php $selected = ( isset( $this->wpdiu_options['disabled_notification'] ) && 'none' === $this->wpdiu_options['disabled_notification'] ) ? 'selected' : ''; ?>
-			<option value="none" <?php echo esc_attr( $selected ); ?>>Don't send any notification</option>
+			<option value="none" <?php echo esc_attr( $selected ); ?>><?php echo esc_html_e( 'Don\'t send any notification', 'wp-disable-inactive-users' ); ?></option>
 			<?php $selected = ( isset( $this->wpdiu_options['disabled_notification'] ) && 'customer' === $this->wpdiu_options['disabled_notification'] ) ? 'selected' : ''; ?>
-			<option value="customer" <?php echo esc_attr( $selected ); ?>>Send it to the user</option>
+			<option value="customer" <?php echo esc_attr( $selected ); ?>><?php echo esc_html_e( 'Send it to the user', 'wp-disable-inactive-users' ); ?></option>
 			<?php $selected = ( isset( $this->wpdiu_options['disabled_notification'] ) && 'administrator' === $this->wpdiu_options['disabled_notification'] ) ? 'selected' : ''; ?>
-			<option value="administrator" <?php echo esc_attr( $selected ); ?>>Send it to the administrator</option>
+			<option value="administrator" <?php echo esc_attr( $selected ); ?>><?php echo esc_html_e( 'Send it to the administrator', 'wp-disable-inactive-users' ); ?></option>
 			<?php $selected = ( isset( $this->wpdiu_options['disabled_notification'] ) && 'all' === $this->wpdiu_options['disabled_notification'] ) ? 'selected' : ''; ?>
-			<option value="all" <?php echo esc_attr( $selected ); ?>>Send it to both</option>
+			<option value="all" <?php echo esc_attr( $selected ); ?>><?php echo esc_html_e( 'Send it to both', 'wp-disable-inactive-users' ); ?></option>
 		</select> 
 		<?php
 	}
