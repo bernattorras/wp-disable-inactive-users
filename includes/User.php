@@ -42,8 +42,7 @@ class User {
 		$disabled = get_user_meta( $user->ID, 'wpdiu_disabled', true );
 
 		if ( $disabled || ! self::is_user_active( $user ) ) {
-			update_user_meta( $user->ID, 'wpdiu_disabled', true );
-			update_user_meta( $user->ID, 'wpdiu_last_login_attempt', current_time( 'mysql' ) );
+			self::disable_user( $user );
 			return self::throw_inactive_error( $user );
 		}
 
@@ -87,6 +86,17 @@ class User {
 		}
 
 		return $is_active;
+	}
+
+	/**
+	 * Disable a user.
+	 *
+	 * @param WP_User $user - A user to disable.
+	 * @return void
+	 */
+	public static function disable_user( $user ) {
+		update_user_meta( $user->ID, 'wpdiu_disabled', true );
+		update_user_meta( $user->ID, 'wpdiu_last_login_attempt', current_time( 'mysql' ) );
 	}
 
 	/**
