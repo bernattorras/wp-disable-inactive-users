@@ -320,16 +320,21 @@ class Settings {
 	 * @return void
 	 */
 	public function dont_disable_roles_callback() {
+		global $wp_roles;
+		$all_roles      = $wp_roles->roles;
+		$editable_roles = apply_filters( 'editable_roles', $all_roles );
 		?>
-		<select name="wpdiu_settings[dont_disable_roles][]" id="dont_disable_roles" multiple='multiple' style="width: 10em; padding-top: 6px;">
-			<?php $selected = ( isset( $this->wpdiu_options['dont_disable_roles'] ) && in_array( 'administrator', $this->wpdiu_options['dont_disable_roles'], true ) ) ? 'selected' : ''; ?>
-			<option value="administrator" <?php echo esc_attr( $selected ); ?>>Administrator</option>
-			<?php $selected = ( isset( $this->wpdiu_options['dont_disable_roles'] ) && in_array( 'editor', $this->wpdiu_options['dont_disable_roles'], true ) ) ? 'selected' : ''; ?>
-			<option value="editor" <?php echo esc_attr( $selected ); ?>>Editor</option>
-			<?php $selected = ( isset( $this->wpdiu_options['dont_disable_roles'] ) && in_array( 'subscriber', $this->wpdiu_options['dont_disable_roles'], true ) ) ? 'selected' : ''; ?>
-			<option value="subscriber" <?php echo esc_attr( $selected ); ?>>Subscriber</option>
+		<select name="wpdiu_settings[dont_disable_roles][]" id="dont_disable_roles" multiple='multiple' style="min-width: 10em; padding-top: 6px;">
+		<?php
+		foreach ( $editable_roles as $role => $role_data ) {
+			$selected = ( isset( $this->wpdiu_options['dont_disable_roles'] ) && in_array( $role, $this->wpdiu_options['dont_disable_roles'], true ) ) ? 'selected' : '';
+			?>
+			<option value="<?php echo esc_attr( $role ); ?>" <?php echo esc_attr( $selected ); ?>><?php echo esc_attr( $role_data['name'] ); ?></option>
+			<?php
+		}
+		?>
 		</select> 
-		<p class="description">Select multiple roles with Ctrl-Click for Windows or Cmd-Click for Mac.</p>
+		<p class="description"><?php echo esc_html_e( 'Select multiple roles with Ctrl-Click for Windows or Cmd-Click for Mac.', 'wp-disable-inactive-users' ); ?></p>
 		<?php
 	}
 
@@ -353,6 +358,8 @@ class Settings {
 	public function disabled_notification_callback() {
 		?>
 		<select name="wpdiu_settings[disabled_notification]" id="disabled_notification">
+			<?php $selected = ( isset( $this->wpdiu_options['disabled_notification'] ) && 'none' === $this->wpdiu_options['disabled_notification'] ) ? 'selected' : ''; ?>
+			<option value="none" <?php echo esc_attr( $selected ); ?>>Don't send any notification</option>
 			<?php $selected = ( isset( $this->wpdiu_options['disabled_notification'] ) && 'customer' === $this->wpdiu_options['disabled_notification'] ) ? 'selected' : ''; ?>
 			<option value="customer" <?php echo esc_attr( $selected ); ?>>Send it to the user</option>
 			<?php $selected = ( isset( $this->wpdiu_options['disabled_notification'] ) && 'administrator' === $this->wpdiu_options['disabled_notification'] ) ? 'selected' : ''; ?>
