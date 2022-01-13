@@ -26,6 +26,7 @@ class Settings {
 		// Add the settings page ( Users > Disable Inactive Users ).
 		add_action( 'admin_menu', [ $this, 'wpdiu_add_plugin_page' ] );
 		add_action( 'admin_init', [ $this, 'page_init' ] );
+		add_action( 'admin_init', [ $this, 'set_default_opptions' ] );
 
 		// Add the "Is disabled" column in the Users page.
 		add_filter( 'manage_users_columns', [ $this, 'add_inactive_user_column' ] );
@@ -39,6 +40,15 @@ class Settings {
 		// Add the "Reactivate" user row action and its functionality.
 		add_filter( 'user_row_actions', [ $this, 'reactivate_user_link' ], 10, 2 );
 		add_action( 'admin_init', [ $this, 'add_admin_listeners' ] );
+	}
+
+	/**
+	 * Retruns the plugin settings.
+	 *
+	 * @return array - The plugin settings.
+	 */
+	public static function get_settings() {
+		return get_option( 'wpdiu_settings' );
 	}
 
 	/**
@@ -252,6 +262,23 @@ class Settings {
 			'wp-disable-inactive-users-admin',
 			'wpdiu_setting_section'
 		);
+	}
+
+	/**
+	 * Set de option defaults.
+	 *
+	 * @return void
+	 */
+	public function set_default_opptions() {
+		$wpdiu_options = get_option( 'wpdiu_settings' );
+		if ( false === $wpdiu_options ) {
+			// By default, prevent administrators and editors to be disabled.
+			$wpdiu_options = array(
+				'dont_disable_roles'    => [ 'administrator', 'editor' ],
+				'disabled_notification' => 'none',
+			);
+			update_option( 'wpdiu_settings', $wpdiu_options );
+		}
 	}
 
 	/**

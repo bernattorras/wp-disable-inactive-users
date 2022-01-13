@@ -39,7 +39,15 @@ class User {
 	 */
 	public static function check_if_user_active( WP_User $user, string $password ) {
 
-		$disabled = get_user_meta( $user->ID, 'wpdiu_disabled', true );
+		$options            = \WPDIU\Settings::get_settings();
+		$dont_disable_roles = $options['dont_disable_roles'];
+		$has_role           = self::user_has_role( $user->ID, $dont_disable_roles );
+		$disabled           = get_user_meta( $user->ID, 'wpdiu_disabled', true );
+
+		// Skip the validation if the user has one of the roles specified in the "Don't disable users with the following roles" option.
+		if ( $has_role ) {
+			return $user;
+		}
 
 		if ( $disabled || ! self::is_user_active( $user ) ) {
 			self::disable_user( $user );
@@ -145,4 +153,24 @@ class User {
 		delete_user_meta( $user_id, 'wpdiu_last_login' );
 		delete_user_meta( $user_id, 'wpdiu_disabled' );
 	}
+
+	/**
+	 * Check if the user has one of the provided roles.
+	 *
+	 * @param int   $user_id - The user ID.
+	 * @param array $roles - An array containing the roles to check against.
+	 * @return boolean - True if the user has one of these roles. False otherwise.
+	 */
+	public static function user_has_role( $user_id, $roles ) {
+		$user_meta  = get_userdata( $user_id );
+		$user_roles = $user_meta->roles;
+
+		foreach ( $user_roles as $key => $role ) {
+			if ( in_array( $role, $roles, true ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
