@@ -27,7 +27,7 @@ class User {
 	 * @return void
 	 */
 	public static function update_last_login( string $user_login, WP_User $user ) {
-		update_user_meta( $user->ID, 'last_login', current_time( 'mysql' ) );
+		update_user_meta( $user->ID, 'wpdiu_last_login', current_time( 'mysql' ) );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class User {
 		$now_date   = new DateTime( $now );
 
 		// Check if user has last_login meta.
-		$user_last_login = get_user_meta( $user->ID, 'last_login', true );
+		$user_last_login = get_user_meta( $user->ID, 'wpdiu_last_login', true );
 		if ( '' === $user_last_login ) {
 			// The user doesn't have the 'last_login' meta yet.
 			$activation      = \WPDIU::$activation_date;
@@ -132,7 +132,7 @@ class User {
 	 * @return void
 	 */
 	public static function reactivate_user( $user_id ) {
-		delete_user_meta( $user_id, 'last_login' );
+		delete_user_meta( $user_id, 'wpdiu_last_login' );
 		delete_user_meta( $user_id, 'wpdiu_disabled' );
 	}
 }

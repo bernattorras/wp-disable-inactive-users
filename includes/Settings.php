@@ -87,7 +87,7 @@ class Settings {
 	 * @return array $columns - The current User columns.
 	 */
 	public function add_last_login_user_column( $columns ) {
-		$columns['last_login'] = 'Last Login';
+		$columns['wpdiu_last_login'] = 'Last Login';
 		return $columns;
 	}
 
@@ -101,10 +101,10 @@ class Settings {
 	 */
 	public function last_login_user_column_content( $value, $column_name, $user_id ) {
 		$disabled           = get_user_meta( $user_id, 'wpdiu_disabled', true );
-		$last_login         = get_user_meta( $user_id, 'last_login', true );
+		$last_login         = get_user_meta( $user_id, 'wpdiu_last_login', true );
 		$last_login_attempt = get_user_meta( $user_id, 'wpdiu_last_login_attempt', true );
 
-		if ( 'last_login' === $column_name ) {
+		if ( 'wpdiu_last_login' === $column_name ) {
 			$value = '-';
 			if ( $disabled ) {
 				$value = '<p>' . $last_login_attempt . '</p><i>' . __( '(Blocked attempt)', 'wp-disable-inactive-users' ) . '</i>';
