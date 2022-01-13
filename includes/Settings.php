@@ -65,7 +65,7 @@ class Settings {
 		if ( 'inactive_user' === $column_name ) {
 			$value = '-';
 			if ( $disabled ) {
-				$value = '<div class="wpdiu_disabled"></div>';
+				$value = '<div class="wpdiu_icon wpdiu_disabled"></div>';
 			}
 		}
 		return $value;
@@ -77,7 +77,11 @@ class Settings {
 	 * @return void
 	 */
 	public function users_page_custom_styles() {
-		echo '<style>.wpdiu_disabled:before { content: "\f147"; display: inline-block; -webkit-font-smoothing: antialiased; font: normal 24px/1 "dashicons"; vertical-align: top;}</style>';
+		echo '<style>';
+		echo '.wpdiu_icon:before { display: inline-block; -webkit-font-smoothing: antialiased; font: normal 24px/1 "dashicons"; vertical-align: bottom; position: relative; top: 2px;}';
+		echo '.wpdiu_disabled:before, .wpdiu_login:before { content: "\f147"; }';
+		echo '.wpdiu_blocked:before { content: "\f158"; }';
+		echo '</style>';
 	}
 
 	/**
@@ -107,9 +111,10 @@ class Settings {
 		if ( 'wpdiu_last_login' === $column_name ) {
 			$value = '-';
 			if ( $disabled ) {
-				$value = '<p>' . $last_login_attempt . '</p><i>' . __( '(Blocked attempt)', 'wp-disable-inactive-users' ) . '</i>';
-			} else {
-				$value = '<i class="wpdiu_login"></i>' . $last_login;
+				$value = '<p><i class="wpdiu_icon wpdiu_blocked"></i>' . $last_login_attempt . '</p>';
+			}
+			if ( '' !== $last_login ) {
+				$value .= '<p><i class="wpdiu_icon wpdiu_login"></i>' . $last_login . '</p>';
 			}
 		}
 		return $value;
