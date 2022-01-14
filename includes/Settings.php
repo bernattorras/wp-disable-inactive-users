@@ -116,6 +116,7 @@ class Settings {
 	public function last_login_user_column_content( $value, $column_name, $user_id ) {
 		$disabled           = get_user_meta( $user_id, 'wpdiu_disabled', true );
 		$last_login         = get_user_meta( $user_id, 'wpdiu_last_login', true );
+		$blocked_date       = get_user_meta( $user_id, 'wpdiu_date_blocked', true );
 		$last_login_attempt = get_user_meta( $user_id, 'wpdiu_last_login_attempt', true );
 
 		if ( 'wpdiu_last_login' === $column_name ) {
@@ -124,7 +125,7 @@ class Settings {
 			}
 
 			if ( $disabled ) {
-				$value = '<p><i class="wpdiu_icon wpdiu_blocked"></i>' . $last_login_attempt . '</p>';
+				$value = '<p><i class="wpdiu_icon wpdiu_blocked"></i>' . $blocked_date . '</p>';
 			}
 
 			if ( '' !== $last_login ) {
