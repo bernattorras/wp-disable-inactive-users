@@ -112,7 +112,7 @@ class User {
 
 			// Set disabled and blocked date metas.
 			update_user_meta( $user->ID, 'wpdiu_disabled', true );
-			update_user_meta( $user->ID, 'wpdiu_date_blocked', true );
+			update_user_meta( $user->ID, 'wpdiu_date_blocked', current_time( 'mysql' ) );
 
 			// Send the blocked notifiction.
 			$settings = \WPDIU\Settings::get_settings();
