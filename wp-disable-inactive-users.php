@@ -62,6 +62,10 @@ class WPDIU {
 		// Update the last login meta when the user logs in.
 		add_action( 'wp_login', [ 'WPDIU\User', 'update_last_login' ], 10, 2 );
 
+		// Listen for scheduled notifications.
+		$notification = new WPDIU\Notification();
+		add_action( 'init', [ $notification, 'add_listeners' ] );
+
 		// Plugin activation and deactivation functionality.
 		register_activation_hook( __FILE__, [ $this, 'wpdiu_activate' ] );
 		register_deactivation_hook( __FILE__, [ $this, 'wpdiu_deactivate' ] );

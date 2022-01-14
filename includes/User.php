@@ -103,8 +103,37 @@ class User {
 	 * @return void
 	 */
 	public static function disable_user( $user ) {
-		update_user_meta( $user->ID, 'wpdiu_disabled', true );
+		$is_already_disabled = get_user_meta( $user->ID, 'wpdiu_disabled', true );
+
 		update_user_meta( $user->ID, 'wpdiu_last_login_attempt', current_time( 'mysql' ) );
+
+		// The user is disabled for the first time.
+		if ( ! $is_already_disabled ) {
+
+			// Set disabled and blocked date metas.
+			update_user_meta( $user->ID, 'wpdiu_disabled', true );
+			update_user_meta( $user->ID, 'wpdiu_date_blocked', true );
+
+			// Send the blocked notifiction.
+			$settings = \WPDIU\Settings::get_settings();
+			$send_to  = $settings['disabled_notification'];
+
+			// Don't send any notification if the user has selected 'none' in the "Send a notification email when a user is disabled" options field.
+			if ( 'none' === $send_to ) {
+				return;
+			}
+
+			$notification = new \WPDIU\Notification();
+			$notification->schedule(
+				time(),
+				'single',
+				'disabled',
+				$args     = array(
+					'user_id' => $user->ID,
+					'send_to' => $send_to,
+				)
+			);
+		}
 	}
 
 	/**
