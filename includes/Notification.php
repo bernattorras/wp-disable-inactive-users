@@ -13,17 +13,39 @@ namespace WPDIU;
 class Notification {
 
 	/**
-	 * The Admin options
+	 * The notification headers.
 	 *
-	 * @var array - The saved plugin options.
+	 * @var array - Each notification headers.
 	 */
 	public $headers;
 
+	/**
+	 * The notification body.
+	 *
+	 * @var array - Each notification body.
+	 */
 	public $body;
 
+	/**
+	 * The notification subject.
+	 *
+	 * @var array - Each notification subject.
+	 */
 	public $subject;
 
+	/**
+	 * The admin email
+	 *
+	 * @var string - The site administrator's email.
+	 */
 	public $admin_email;
+
+	/**
+	 * Site name.
+	 * 
+	 * @var string - The name of the site.
+	 */
+	public $site_name;
 
 	/**
 	 * The class constructor.
@@ -31,26 +53,37 @@ class Notification {
 	public function __construct() {
 		$this->admin_email = get_option( 'admin_email', true );
 
+		$this->site_name = get_option( 'blogname', true );
+
 		$this->headers = apply_filters(
 			'wpdiu_notification_headers',
 			array(
-				'Content-Type: text/html;',
+				'Content-Type: text/html',
 			)
 		);
 
 		$this->body = apply_filters(
 			'wpdiu_notification_body',
 			array(
-				'customer' => 'Your account at XXX has been disabled because you didn\'t log in for 90 days. Plese get in touch with the site administrator if you want to reactivate it.',
-				'administrator'    => 'A new user account has been disabled. User: ZZZ. Last login: XXX. [Manage users].',
+				'customer'      => sprintf(
+					/* translators: %s: The site name. */
+					__( 'Your account at %s has been disabled because you didn\'t log in for 90 days. Plese get in touch with the site administrator if you want to reactivate it.', 'wp-disable-inactive-users' ),
+					$this->site_name
+				),
+				/* translators: %1$s: The username of the disabled user. %3$s: A links to the Users page. */
+				'administrator' => __( 'A new user account has been disabled. User: %1$s. <a href="%2$s">Manage users</a>.', 'wp-disable-inactive-users' ),
 			)
 		);
 
 		$this->subject = apply_filters(
 			'wpdiu_notification_subject',
 			array(
-				'customer' => 'Your account at XXX has been disabled',
-				'administrator'    => 'A new user account has been disabled',
+				'customer'      => sprintf(
+					/* translators: %s: The site name. */
+					__( 'Your account at %s has been disabled.', 'wp-disable-inactive-users' ),
+					$this->site_name
+				),
+				'administrator' => __( 'A new user account has been disabled', 'wp-disable-inactive-users' ),
 			)
 		);
 
@@ -108,13 +141,20 @@ class Notification {
 
 	}
 
+	/**
+	 * Get the parameters of each notification.
+	 *
+	 * @param string $send_to - Determines to whom should be sent the notification (set in the plugin options).
+	 * @param int    $user_id - The Id of the disabled user.
+	 * @return array $params - The mail parmaters of the requested notification.
+	 */
 	public function get_notification_params( $send_to, $user_id ) {
 
 		$params = array();
 
-		$user_info   = get_userdata( $user_id );
-		$user_name   = $user_info->display_name;
-		$user_email  = $user_info->user_email;
+		$user_info  = get_userdata( $user_id );
+		$user_name  = $user_info->display_name;
+		$user_email = $user_info->user_email;
 
 		switch ( $send_to ) {
 			case 'customer':
@@ -129,12 +169,16 @@ class Notification {
 				$params['administrator'] = array(
 					'to'      => $this->admin_email,
 					'subject' => $this->subject[ $send_to ],
-					'body'    => $this->body[ $send_to ],
+					'body'    => sprintf(
+						$this->body[ $send_to ],
+						$user_email,
+						admin_url( 'users.php' )
+					),
 					'headers' => $this->headers,
 				);
 				break;
 			case 'all':
-				$params['customer'] = array(
+				$params['customer']      = array(
 					'to'      => $user_email,
 					'subject' => $this->subject['customer'],
 					'body'    => $this->body['customer'],
@@ -143,7 +187,11 @@ class Notification {
 				$params['administrator'] = array(
 					'to'      => $this->admin_email,
 					'subject' => $this->subject['administrator'],
-					'body'    => $this->body['administrator'],
+					'body'    => sprintf(
+						$this->body['administrator'],
+						$user_email,
+						admin_url( 'users.php' )
+					),
 					'headers' => $this->headers,
 				);
 				break;
