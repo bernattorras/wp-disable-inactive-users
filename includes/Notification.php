@@ -71,7 +71,7 @@ class Notification {
 					$this->site_name
 				),
 				/* translators: %1$s: The username of the disabled user. %3$s: A links to the Users page. */
-				'administrator' => __( 'A new user account has been disabled. User: %1$s. <a href="%2$s">Manage users</a>.', 'wp-disable-inactive-users' ),
+				'administrator' => __( '<p>A new user account has been disabled.</p><p><strong>User:</strong> %1$s.</p><p><a href="%2$s">Manage users</a></p>', 'wp-disable-inactive-users' ),
 			)
 		);
 
