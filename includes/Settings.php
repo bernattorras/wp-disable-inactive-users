@@ -207,7 +207,8 @@ class Settings {
 
 		<div class="wrap">
 			<h2><?php echo esc_html_e( 'WP Disable Inactive Users', 'wp-disable-inactive-users' ); ?></h2>
-			<p><?php echo esc_html_e( 'Here are the settings of the WP Disable Inactive Users plugin.', 'wp-disable-inactive-users' ); ?></p>
+			<p><?php echo esc_html_e( 'This plugin will automatically disable the users that haven\'t logged in for a specific number of days.', 'wp-disable-inactive-users' ); ?></p>
+			<p><?php echo esc_html_e( 'By default, users are disabled when they try to log in, but they can also be disabled automatically by the system.', 'wp-disable-inactive-users' ); ?></p>
 			<?php settings_errors(); ?>
 
 			<form method="post" action="options.php">
@@ -249,9 +250,9 @@ class Settings {
 		);
 
 		add_settings_field(
-			'reminder_email',
-			__( 'Send a reminder email', 'wp-disable-inactive-users' ),
-			array( $this, 'reminder_email_callback' ),
+			'disable_automatically',
+			__( 'Disable users automatically', 'wp-disable-inactive-users' ),
+			array( $this, 'disable_automatically_callback' ),
 			'wp-disable-inactive-users-admin',
 			'wpdiu_setting_section'
 		);
@@ -295,8 +296,8 @@ class Settings {
 			$sanitary_values['dont_disable_roles'] = $input['dont_disable_roles'];
 		}
 
-		if ( isset( $input['reminder_email'] ) ) {
-			$sanitary_values['reminder_email'] = $input['reminder_email'];
+		if ( isset( $input['disable_automatically'] ) ) {
+			$sanitary_values['disable_automatically'] = $input['disable_automatically'];
 		}
 
 		if ( isset( $input['disabled_notification'] ) ) {
@@ -344,10 +345,10 @@ class Settings {
 	 *
 	 * @return void
 	 */
-	public function reminder_email_callback() {
+	public function disable_automatically_callback() {
 		printf(
-			'<input type="checkbox" name="wpdiu_settings[reminder_email]" id="reminder_email" value="reminder_email" %s> <label for="reminder_email">Check this option to send a reminder email to the customers 1 day before disabling their account.</label>',
-			( isset( $this->wpdiu_options['reminder_email'] ) && 'reminder_email' === $this->wpdiu_options['reminder_email'] ) ? 'checked' : ''
+			'<input type="checkbox" name="wpdiu_settings[disable_automatically]" id="disable_automatically" %s> <label for="disable_automatically">Daily check to disable the users that haven\'t logged in recently. If there are some, they will be disabled automatically without the need of waiting for their next login attempt.</label>',
+			( isset( $this->wpdiu_options['disable_automatically'] ) && 'on' === $this->wpdiu_options['disable_automatically'] ) ? 'checked' : ''
 		);
 	}
 
