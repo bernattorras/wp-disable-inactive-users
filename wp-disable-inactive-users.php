@@ -39,9 +39,6 @@ class WPDIU {
 
 		// Overwrite the default $days_limit with the provided number if it is changed using the 'wpdiu_days_limit' filter.
 		self::$days_limit = apply_filters( 'wpdiu_days_limit', self::$days_limit );
-
-		// Overwrite the default $days_limit with the provided number if it is changed using the 'wpdiu_days_limit' filter.
-		self::$activation_date = apply_filters( 'wpdiu_activation_date', get_option( 'wpdiu_activation' ) );
 	}
 
 	/**
@@ -81,25 +78,21 @@ class WPDIU {
 	 * @return void
 	 */
 	public function wpdiu_activate() {
-		if ( false === get_option( 'wpdiu_activation' ) ) {
-			$current_time = current_time( 'mysql' );
-			add_option( 'wpdiu_activation', $current_time );
+		if ( false === self::$activation_date ) {
+			$current_time               = current_time( 'Y-m-d' );
+			$options                    = \WPDIU\Settings::get_settings();
+			$options['activation_date'] = $current_time;
+			update_option( 'wpdiu_settings', $current_time );
 		}
 	}
 
 	/**
 	 * Deactivation functionality
-	 * - Deletes the 'wpdiu_activation' option.
 	 * - Unschedules the recurring 'wpdiu_disable_users_automatically' event.
 	 *
 	 * @return void
 	 */
 	public function wpdiu_deactivate() {
-
-		// Delete the 'wpdiu_activation' option.
-		if ( false !== get_option( 'wpdiu_activation' ) ) {
-			delete_option( 'wpdiu_activation' );
-		}
 
 		// Unschedule the recurring 'wpdiu_disable_users_automatically' event.
 		\WPDIU\Event::unschedule( 'wpdiu_disable_users_automatically' );

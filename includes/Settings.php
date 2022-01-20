@@ -264,6 +264,14 @@ class Settings {
 			'wp-disable-inactive-users-admin',
 			'wpdiu_setting_section'
 		);
+
+		add_settings_field(
+			'activation_date',
+			__( 'The plugin activation date', 'wp-disable-inactive-users' ),
+			array( $this, 'activation_date_callback' ),
+			'wp-disable-inactive-users-admin',
+			'wpdiu_setting_section'
+		);
 	}
 
 	/**
@@ -278,8 +286,10 @@ class Settings {
 			$wpdiu_options = array(
 				'dont_disable_roles'    => [ 'administrator', 'editor' ],
 				'disabled_notification' => 'none',
+				'activation_date'       => current_time( 'Y-m-d' ),
 			);
 			update_option( 'wpdiu_settings', $wpdiu_options );
+			\WPDIU::$activation_date = current_time( 'Y-m-d' );
 		}
 	}
 
@@ -302,6 +312,10 @@ class Settings {
 
 		if ( isset( $input['disabled_notification'] ) ) {
 			$sanitary_values['disabled_notification'] = $input['disabled_notification'];
+		}
+
+		if ( isset( $input['activation_date'] ) ) {
+			$sanitary_values['activation_date'] = $input['activation_date'];
 		}
 
 		return $sanitary_values;
@@ -370,6 +384,18 @@ class Settings {
 			<option value="all" <?php echo esc_attr( $selected ); ?>><?php echo esc_html_e( 'Send it to both', 'wp-disable-inactive-users' ); ?></option>
 		</select> 
 		<?php
+	}
+
+	/**
+	 * Plugin activation date.
+	 *
+	 * @return void
+	 */
+	public function activation_date_callback() {
+		printf(
+			'<input id="activation_date" type="text" name="wpdiu_settings[activation_date]" placeholder="Y-m-d" id="activation_date" value="%s"> <p class="description">This date is used to disable the users that haven\'t logged in since the plugin was activated (either when they try to log in or when they are disabled automatically).</p>',
+			( isset( $this->wpdiu_options['activation_date'] ) ) ? esc_html( $this->wpdiu_options['activation_date'] ) : esc_html( \WPDIU::$activation_date )
+		);
 	}
 
 }
