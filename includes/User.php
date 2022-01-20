@@ -346,7 +346,7 @@ class User {
 	/**
 	 * Reactivates a user.
 	 *
-	 * @param [type] $user_id - The user ID.
+	 * @param string $user_id - The user ID.
 	 * @return void
 	 */
 	public static function reactivate_user( $user_id ) {
