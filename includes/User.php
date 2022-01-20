@@ -352,6 +352,15 @@ class User {
 	public static function reactivate_user( $user_id ) {
 		delete_user_meta( $user_id, 'wpdiu_last_login' );
 		delete_user_meta( $user_id, 'wpdiu_disabled' );
+
+		// Remove the user from the 'wpdiu_disabled_users' option.
+		$disabled_users = get_option( 'wpdiu_disabled_users' );
+		$key            = array_search( $user_id, $disabled_users, true );
+		if ( false !== $key ) {
+			// The user is in the 'wpdiu_disabled_users' option. Remove it and update the option.
+			unset( $disabled_users[ $key ] );
+			update_option( 'wpdiu_disabled_users', $disabled_users );
+		}
 	}
 
 	/**
