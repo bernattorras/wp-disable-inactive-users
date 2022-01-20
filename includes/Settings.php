@@ -488,7 +488,8 @@ class Settings {
 		submit_button(
 			__( 'Reactivate Users', 'wp-disable-inactive-users' ),
 			'secondary large',
-			'reactivate_users'
+			'reactivate_users',
+			false
 		);
 	}
 
