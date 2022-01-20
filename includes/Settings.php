@@ -40,6 +40,22 @@ class Settings {
 		// Add the "Reactivate" user row action and its functionality.
 		add_filter( 'user_row_actions', [ $this, 'reactivate_user_link' ], 10, 2 );
 		add_action( 'admin_init', [ $this, 'add_admin_listeners' ] );
+
+		// Add a link to the plugin settings in the plugin row.
+		add_filter( 'plugin_action_links_' . \WPDIU::$plugin_basename, [ $this, 'add_plugin_settings_link' ] );
+	}
+
+	/**
+	 * Adds a Settings link to the plugin row.
+	 *
+	 * @param array $links - The plugin links.
+	 * @return array $links.
+	 */
+	public function add_plugin_settings_link( $links ) {
+		$links[] = '<a href="' .
+			admin_url( 'users.php?page=wp-disable-inactive-users' ) .
+			'">' . __( 'Settings' ) . '</a>';
+		return $links;
 	}
 
 	/**

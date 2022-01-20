@@ -33,12 +33,21 @@ class WPDIU {
 	public static $activation_date;
 
 	/**
+	 * The plugin basename.
+	 *
+	 * @var [type]
+	 */
+	public static $plugin_basename;
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
 
 		// Overwrite the default $days_limit with the provided number if it is changed using the 'wpdiu_days_limit' filter.
 		self::$days_limit = apply_filters( 'wpdiu_days_limit', self::$days_limit );
+
+		self::$plugin_basename = plugin_basename( __FILE__ );
 	}
 
 	/**
