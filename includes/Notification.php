@@ -7,6 +7,8 @@
 
 namespace WPDIU;
 
+use DateTime;
+
 /**
  * Admin Notifications class
  */
@@ -42,7 +44,7 @@ class Notification {
 
 	/**
 	 * Site name.
-	 * 
+	 *
 	 * @var string - The name of the site.
 	 */
 	public $site_name;
@@ -51,6 +53,7 @@ class Notification {
 	 * The class constructor.
 	 */
 	public function __construct() {
+
 		$this->admin_email = get_option( 'admin_email', true );
 
 		$this->site_name = get_option( 'blogname', true );
@@ -65,25 +68,28 @@ class Notification {
 		$this->body = apply_filters(
 			'wpdiu_notification_body',
 			array(
-				'customer'      => sprintf(
+				'customer'           => sprintf(
 					/* translators: %s: The site name. */
 					__( 'Your account at %s has been disabled because you didn\'t log in for 90 days. Plese get in touch with the site administrator if you want to reactivate it.', 'wp-disable-inactive-users' ),
 					$this->site_name
 				),
-				/* translators: %1$s: The username of the disabled user. %3$s: A links to the Users page. */
-				'administrator' => __( '<p>A new user account has been disabled.</p><p><strong>User:</strong> %1$s.</p><p><a href="%2$s">Manage users</a></p>', 'wp-disable-inactive-users' ),
+				/* translators: %1$s: The username of the disabled user. %3$s: A link to the Users page. */
+				'administrator'      => __( '<p>A new user account has been disabled.</p><p><strong>User:</strong> %1$s.</p><p><a href="%2$s">Manage users</a></p>', 'wp-disable-inactive-users' ),
+				/* translators: %1$s: An HTML list of the disabled users. %3$s: A link to the Users page. */
+				'bulk_administrator' => __( '<p>The following accounts have been disabled:</p>%1$s<p><a href="%2$s">Manage users</a></p>', 'wp-disable-inactive-users' ),
 			)
 		);
 
 		$this->subject = apply_filters(
 			'wpdiu_notification_subject',
 			array(
-				'customer'      => sprintf(
+				'customer'           => sprintf(
 					/* translators: %s: The site name. */
 					__( 'Your account at %s has been disabled.', 'wp-disable-inactive-users' ),
 					$this->site_name
 				),
-				'administrator' => __( 'A new user account has been disabled', 'wp-disable-inactive-users' ),
+				'administrator'      => __( 'A new user account has been disabled', 'wp-disable-inactive-users' ),
+				'bulk_administrator' => __( 'New user accounts have been disabled', 'wp-disable-inactive-users' ),
 			)
 		);
 
@@ -97,33 +103,25 @@ class Notification {
 	public function add_listeners() {
 		add_action( 'wpdiu_send_reminder_notifications', [ $this, 'send_reminder_notifications' ], 10, 2 );
 		add_action( 'wpdiu_send_disabled_notifications', [ $this, 'send_disabled_notifications' ], 10, 2 );
+		add_action( 'wpdiu_send_bulk_disabled_notifications', [ $this, 'send_bulk_disabled_notifications' ], 10, 2 );
 	}
 
 	/**
-	 * Schedule a recurring or single notification.
+	 * Send a notification after bulk disabling mutliple users.
 	 *
-	 * @param int    $timestamp - Unix timestamp (UTC) for when to next run the event.
-	 * @param string $recurrence - How often the event should subsequently recur. See wp_get_schedules() for accepted values.
-	 * @param string $hook_type - 'reminder' or 'disabled' depending on which kind of notification needs to be sent.
-	 * @param array  $args - Array containing arguments to pass to the hook's callback function.
+	 * @param array  $user_ids - The disabled users.
+	 * @param string $send_to - To whom the notification should be sent (by default: 'bulk_administrator').
 	 * @return void
 	 */
-	public function schedule( $timestamp, $recurrence, $hook_type, $args = array() ) {
+	public function send_bulk_disabled_notifications( $user_ids, $send_to = 'bulk_administrator' ) {
+		// Get an HTML formatted list of the disabled users.
+		$users_list = '<ul><li>' . implode( '</li><li>', $user_ids ) . '</li></ul>';
+		$params     = $this->get_notification_params( $send_to, $users_list );
 
-		$hook_name = 'wpdiu_send_' . $hook_type . '_notifications';
-
-		if ( 'single' === $recurrence ) {
-			if ( ! wp_next_scheduled( $hook_type ) ) {
-				wp_schedule_single_event( time(), $hook_name, $args );
-			}
-		} else {
-			if ( ! wp_next_scheduled( $hook_type ) ) {
-				wp_schedule_event( $timestamp, $recurrence, $hook_name, $args );
-			}
+		foreach ( $params as $email => $email_params ) {
+			wp_mail( $email_params['to'], $email_params['subject'], $email_params['body'], $email_params['headers'] );
 		}
-
 	}
-
 	/**
 	 * Send the account disabled notification.
 	 *
@@ -152,9 +150,11 @@ class Notification {
 
 		$params = array();
 
-		$user_info  = get_userdata( $user_id );
-		$user_name  = $user_info->display_name;
-		$user_email = $user_info->user_email;
+		if ( is_int( $user_id ) ) {
+			$user_info  = get_userdata( $user_id );
+			$user_name  = $user_info->display_name;
+			$user_email = $user_info->user_email;
+		}
 
 		switch ( $send_to ) {
 			case 'customer':
@@ -172,6 +172,18 @@ class Notification {
 					'body'    => sprintf(
 						$this->body[ $send_to ],
 						$user_email,
+						admin_url( 'users.php' )
+					),
+					'headers' => $this->headers,
+				);
+				break;
+			case 'bulk_administrator':
+				$params['bulk_administrator'] = array(
+					'to'      => $this->admin_email,
+					'subject' => $this->subject[ $send_to ],
+					'body'    => sprintf(
+						$this->body[ $send_to ],
+						$user_id,
 						admin_url( 'users.php' )
 					),
 					'headers' => $this->headers,
@@ -196,6 +208,7 @@ class Notification {
 				);
 				break;
 		}
+
 		return $params;
 	}
 

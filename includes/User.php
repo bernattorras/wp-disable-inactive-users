@@ -10,6 +10,7 @@ namespace WPDIU;
 use WP_User;
 use WP_Error;
 use DateTime;
+use WP_User_Query;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -18,6 +19,51 @@ defined( 'ABSPATH' ) || exit;
  * This class handles all the user functionlity.
  */
 class User {
+
+	/**
+	 * A list of the disabled users
+	 *
+	 * @var array - An array containing the IDs of the disabled users.
+	 */
+	public static $disabled_users = array();
+
+	/**
+	 * User init method.
+	 *
+	 * @return void
+	 */
+	public static function init() {
+		$options            = \WPDIU\Settings::get_settings();
+		$disabled_users_ids = get_option( 'wpdiu_disabled_users' );
+
+		// The callback for the 'wpdiu_bulk_disable_users' event.
+		add_action( 'wpdiu_get_disabled_users', [ __CLASS__, 'get_disabled_users_ids' ] );
+
+		// Schedule a single event to get the IDs of the disabled users and store it to the 'wpdiu_disabled_users' option (if it doesn't exist already).
+		if ( ! $disabled_users_ids ) {
+			\WPDIU\Event::schedule(
+				time(),
+				'single',
+				'wpdiu_get_disabled_users'
+			);
+		}
+
+		if ( isset( $options['disable_automatically'] ) && 'on' === $options['disable_automatically'] ) {
+
+			// The callback for the 'wpdiu_bulk_disable_users' event.
+			add_action( 'wpdiu_disable_users_automatically', [ __CLASS__, 'bulk_disable_users' ] );
+
+			// Schedule the daily event to disable users automatically.
+			\WPDIU\Event::schedule(
+				time() + ( 60 * 60 ),
+				'daily',
+				'wpdiu_disable_users_automatically'
+			);
+		} else {
+			\WPDIU\Event::unschedule( 'wpdiu_disable_users_automatically' );
+		}
+
+	}
 
 	/**
 	 * Adds/updates the 'last_login' user meta with the current time when the user logs in.
@@ -50,7 +96,7 @@ class User {
 		}
 
 		if ( $disabled || ! self::is_user_active( $user ) ) {
-			self::disable_user( $user );
+			self::disable_user( $user, false );
 			return self::throw_inactive_error( $user );
 		}
 
@@ -100,12 +146,16 @@ class User {
 	 * Disable a user.
 	 *
 	 * @param WP_User $user - A user to disable.
+	 * @param bool    $is_bulk - True if the disable request comes from a bulk deactivation (no notification will be sent and no 'wpdiu_last_login_attempt' meta will be updated).
 	 * @return void
 	 */
-	public static function disable_user( $user ) {
+	public static function disable_user( $user, $is_bulk = false ) {
+
 		$is_already_disabled = get_user_meta( $user->ID, 'wpdiu_disabled', true );
 
-		update_user_meta( $user->ID, 'wpdiu_last_login_attempt', current_time( 'mysql' ) );
+		if ( ! $is_bulk ) {
+			update_user_meta( $user->ID, 'wpdiu_last_login_attempt', current_time( 'mysql' ) );
+		}
 
 		// The user is disabled for the first time.
 		if ( ! $is_already_disabled ) {
@@ -123,17 +173,138 @@ class User {
 				return;
 			}
 
-			$notification = new \WPDIU\Notification();
-			$notification->schedule(
+			if ( ! $is_bulk ) {
+				// Send the notification only if it isn't coming from a bulk disable event.
+				\WPDIU\Event::schedule(
+					time(),
+					'single',
+					'wpdiu_send_disabled_notifications',
+					$args = array(
+						'user_id' => $user->ID,
+						'send_to' => $send_to,
+					)
+				);
+			}
+		}
+	}
+
+	/**
+	 * Function to bulk disable users automatically.
+	 *
+	 * @return void
+	 */
+	public static function bulk_disable_users() {
+		$options            = \WPDIU\Settings::get_settings();
+		$dont_disable_roles = $options['dont_disable_roles'];
+		$send_to            = $options['disabled_notification'];
+		$disabled_users_ids = get_option( 'wpdiu_disabled_users' );
+		$new_disabled_users = array();
+
+		// Get a list of all the active users that aren't already disabled and that don't have the roles specified in the plugin settings.
+		$active_users_query = new WP_User_Query(
+			array(
+				'exclude'      => $disabled_users_ids,
+				'role__not_in' => $dont_disable_roles,
+			)
+		);
+
+		$active_users = $active_users_query->get_results();
+
+		foreach ( $active_users as $user ) {
+			// Check if each user should still be active. If not, disable it.
+			$is_active = self::is_user_active( $user );
+			if ( ! $is_active ) {
+
+				// Disable the user.
+				self::disable_user( $user, true );
+
+				// Schedule the customer notification (doing it from here instead of from the 'disable_user' function).
+				\WPDIU\Event::schedule(
+					time(),
+					'single',
+					'wpdiu_send_disabled_notifications',
+					$args = array(
+						'user_id' => $user->ID,
+						'send_to' => 'customer',
+					)
+				);
+
+				// Add the user ID to the disabled users list.
+				$new_disabled_users[] = $user->ID;
+
+			}
+		}
+
+		if ( ( 'administrator' === $send_to || 'all' === $send_to ) && ! is_empty( $new_disabled_users ) ) {
+			// Schedule the admin notification.
+			\WPDIU\Event::schedule(
 				time(),
 				'single',
-				'disabled',
-				$args     = array(
-					'user_id' => $user->ID,
-					'send_to' => $send_to,
+				'wpdiu_send_bulk_disabled_notifications',
+				$args = array(
+					'user_ids' => $new_disabled_users,
+					'send_to'  => 'bulk_administrator',
 				)
 			);
 		}
+
+		// Update the disabled users option with all the recently disabled users.
+		$disabled_users_ids = array_merge( $disabled_users_ids, $new_disabled_users );
+		update_option( 'wpdiu_disabled_users', $disabled_users_ids );
+	}
+
+	/**
+	 * Gets a list of the IDs of the disabled users.
+	 *
+	 * @return array - An array containing the IDs of the disabled users.
+	 */
+	public static function get_disabled_users_ids() {
+		$disabled_users_ids = get_option( 'wpdiu_disabled_users' );
+
+		// If there's no 'wpdiu_disabled_users' option, get the users from the database (performing a slower WP_User_Query).
+		if ( ! $disabled_users_ids ) {
+			$disabled_users_ids = array();
+			$disabled_users     = self::get_disabled_users();
+
+			foreach ( $disabled_users as $user ) {
+				$disabled_users_ids[] = $user->ID;
+			}
+
+			// Save the disabled users in the 'wpdiu_disabled_users' option to avoid future user queries.
+			self::set_disabled_users_option( $disabled_users_ids );
+		}
+
+		return $disabled_users_ids;
+	}
+
+	/**
+	 * Get the disabled users by performing a WP_User_Query.
+	 *
+	 * @return object - The results of the WP_User_Query containing the disabled users.
+	 */
+	public static function get_disabled_users() {
+
+		$disabled_users_query = new WP_User_Query(
+			array(
+				'meta_key'   => 'wpdiu_disabled',
+				'meta_value' => true,
+			)
+		);
+
+		$disabled_users = $disabled_users_query->get_results();
+
+		return $disabled_users;
+	}
+
+	/**
+	 * Saves a list of the disabled users ID's to the database.
+	 *
+	 * @param array $disabled_users_ids - The IDs of the disabled users.
+	 * @return void
+	 */
+	public static function set_disabled_users_option( array $disabled_users_ids ) {
+		// Save the disabled users in the 'wpdiu_disabled_users' option.
+		update_option( 'wpdiu_disabled_users', $disabled_users_ids );
 	}
 
 	/**

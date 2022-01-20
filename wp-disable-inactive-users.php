@@ -53,8 +53,10 @@ class WPDIU {
 		require_once __DIR__ . '/vendor/autoload.php';
 
 		if ( is_admin() ) {
-			$wp_disable_inactive_users = new WPDIU\Settings();
+			$settings = new WPDIU\Settings();
 		}
+
+		add_action( 'init', [ 'WPDIU\User', 'init' ], 10, 2 );
 
 		// Validate the user to check if it's active.
 		add_action( 'wp_authenticate_user', [ 'WPDIU\User', 'check_if_user_active' ], 10, 2 );
@@ -88,13 +90,24 @@ class WPDIU {
 	/**
 	 * Deactivation functionality
 	 * - Deletes the 'wpdiu_activation' option.
+	 * - Unschedules the recurring 'wpdiu_disable_users_automatically' event.
 	 *
 	 * @return void
 	 */
 	public function wpdiu_deactivate() {
+
+		// Delete the 'wpdiu_activation' option.
 		if ( false !== get_option( 'wpdiu_activation' ) ) {
 			delete_option( 'wpdiu_activation' );
 		}
+
+		// Unschedule the recurring 'wpdiu_disable_users_automatically' event.
+		\WPDIU\Event::unschedule( 'wpdiu_disable_users_automatically' );
+
+		// TODO: Unchedule single disabled notification hooks.
+		// - get the 'cron' option.
+		// - filter the array to get only the hooks that start with '_wpdiu'.
+		// - Get their args and unschedule them.
 	}
 
 }
