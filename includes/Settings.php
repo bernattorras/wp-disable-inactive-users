@@ -258,17 +258,25 @@ class Settings {
 		);
 
 		add_settings_field(
-			'dont_disable_roles',
-			__( 'Dont\'t disable the users with the following roles', 'wp-disable-inactive-users' ),
-			array( $this, 'dont_disable_roles_callback' ),
+			'days_limit',
+			__( 'The limit of days', 'wp-disable-inactive-users' ),
+			array( $this, 'days_limit_callback' ),
 			'wp-disable-inactive-users-admin',
 			'wpdiu_setting_section'
 		);
 
 		add_settings_field(
-			'disable_automatically',
-			__( 'Disable users automatically', 'wp-disable-inactive-users' ),
-			array( $this, 'disable_automatically_callback' ),
+			'activation_date',
+			__( 'The plugin activation date', 'wp-disable-inactive-users' ),
+			array( $this, 'activation_date_callback' ),
+			'wp-disable-inactive-users-admin',
+			'wpdiu_setting_section'
+		);
+
+		add_settings_field(
+			'dont_disable_roles',
+			__( 'Dont\'t disable the users with the following roles', 'wp-disable-inactive-users' ),
+			array( $this, 'dont_disable_roles_callback' ),
 			'wp-disable-inactive-users-admin',
 			'wpdiu_setting_section'
 		);
@@ -282,12 +290,13 @@ class Settings {
 		);
 
 		add_settings_field(
-			'activation_date',
-			__( 'The plugin activation date', 'wp-disable-inactive-users' ),
-			array( $this, 'activation_date_callback' ),
+			'disable_automatically',
+			__( 'Disable users automatically', 'wp-disable-inactive-users' ),
+			array( $this, 'disable_automatically_callback' ),
 			'wp-disable-inactive-users-admin',
 			'wpdiu_setting_section'
 		);
+
 	}
 
 	/**
@@ -303,9 +312,11 @@ class Settings {
 				'dont_disable_roles'    => [ 'administrator', 'editor' ],
 				'disabled_notification' => 'none',
 				'activation_date'       => current_time( 'Y-m-d' ),
+				'days_limit'            => 90,
 			);
 			update_option( 'wpdiu_settings', $wpdiu_options );
 			\WPDIU::$activation_date = current_time( 'Y-m-d' );
+			\WPDIU::$days_limit      = $wpdiu_options['days_limit'];
 		}
 	}
 
@@ -332,6 +343,10 @@ class Settings {
 
 		if ( isset( $input['activation_date'] ) ) {
 			$sanitary_values['activation_date'] = $input['activation_date'];
+		}
+
+		if ( isset( $input['days_limit'] ) ) {
+			$sanitary_values['days_limit'] = $input['days_limit'];
 		}
 
 		return $sanitary_values;
@@ -411,6 +426,18 @@ class Settings {
 		printf(
 			'<input id="activation_date" type="text" name="wpdiu_settings[activation_date]" placeholder="Y-m-d" id="activation_date" value="%s"> <p class="description">This date is used to disable the users that haven\'t logged in since the plugin was activated (either when they try to log in or when they are disabled automatically).</p>',
 			( isset( $this->wpdiu_options['activation_date'] ) ) ? esc_html( $this->wpdiu_options['activation_date'] ) : esc_html( \WPDIU::$activation_date )
+		);
+	}
+
+	/**
+	 * The days limit option.
+	 *
+	 * @return void
+	 */
+	public function days_limit_callback() {
+		printf(
+			'<input id="days_limit" type="number" style="width: 4.5em;" name="wpdiu_settings[days_limit]" placeholder="90" min="1" id="days_limit" value="%s"> <p class="description">The number of days to wait to deactivate a user.</p>',
+			( isset( $this->wpdiu_options['days_limit'] ) ) ? esc_html( $this->wpdiu_options['days_limit'] ) : esc_html( \WPDIU::$days_limit )
 		);
 	}
 

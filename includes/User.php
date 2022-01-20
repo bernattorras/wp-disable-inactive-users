@@ -316,7 +316,6 @@ class User {
 	public static function throw_inactive_error( WP_User $user ) {
 
 		$username = $user->user_login;
-		$wpdiu    = new \WPDIU();
 
 		return new WP_Error(
 			'inactive_user',
@@ -324,7 +323,7 @@ class User {
 				/* translators: %1$s: User's username. %2$s: The days limit. */
 				__( '<strong>Error</strong>: The username <strong>%1$s</strong> has been disabled because it has been inactive for %2$s days.', 'wp-disable-inactive-users' ),
 				$username,
-				$wpdiu::$days_limit
+				\WPDIU::$days_limit
 			)
 		);
 	}

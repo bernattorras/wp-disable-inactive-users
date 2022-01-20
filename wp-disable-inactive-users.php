@@ -77,8 +77,26 @@ class WPDIU {
 		// Plugin activation and deactivation functionality.
 		register_activation_hook( __FILE__, [ $this, 'wpdiu_activate' ] );
 		register_deactivation_hook( __FILE__, [ $this, 'wpdiu_deactivate' ] );
+
+		// Initialize the plugin props.
+		$this->set_plugin_props();
 	}
 
+
+	/**
+	 * Initialize the plugin props with the settings values.
+	 *
+	 * @return void
+	 */
+	public function set_plugin_props() {
+		$settings = \WPDIU\Settings::get_settings();
+		if ( isset( $settings['days_limit'] ) ) {
+			self::$days_limit = $settings['days_limit'];
+		}
+		if ( isset( $settings['activation_date'] ) ) {
+			self::$activation_date = $settings['activation_date'];
+		}
+	}
 
 	/**
 	 * Activation functionality
