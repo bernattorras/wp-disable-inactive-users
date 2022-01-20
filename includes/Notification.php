@@ -70,7 +70,7 @@ class Notification {
 			array(
 				'customer'           => sprintf(
 					/* translators: %s: The site name. */
-					__( 'Your account at %s has been disabled because you didn\'t log in for 90 days. Plese get in touch with the site administrator if you want to reactivate it.', 'wp-disable-inactive-users' ),
+					__( 'Your account at %s has been disabled because you didn\'t log in for 90 days. Please get in touch with the site administrator if you want to reactivate it.', 'wp-disable-inactive-users' ),
 					$this->site_name
 				),
 				/* translators: %1$s: The username of the disabled user. %3$s: A link to the Users page. */
@@ -115,7 +115,13 @@ class Notification {
 	 */
 	public function send_bulk_disabled_notifications( $user_ids, $send_to = 'bulk_administrator' ) {
 		// Get an HTML formatted list of the disabled users.
-		$users_list = '<ul><li>' . implode( '</li><li>', $user_ids ) . '</li></ul>';
+		foreach ( $user_ids as $user_id ) {
+			$user_info         = get_userdata( $user_id );
+			$user_name         = $user_info->display_name;
+			$user_email        = $user_info->user_email;
+			$disabled_emails[] = "ID: $user_id ($user_email)";
+		}
+		$users_list = '<ul><li>' . implode( '</li><li>', $disabled_emails ) . '</li></ul>';
 		$params     = $this->get_notification_params( $send_to, $users_list );
 
 		foreach ( $params as $email => $email_params ) {
