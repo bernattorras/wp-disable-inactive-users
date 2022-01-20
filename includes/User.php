@@ -363,6 +363,18 @@ class User {
 	}
 
 	/**
+	 * Reactivate all users automatically.
+	 *
+	 * @return void
+	 */
+	public static function reactivate_all_users() {
+		$disabled_users = self::$disabled_users;
+		foreach ( $disabled_users as $user_id ) {
+			self::reactivate_user( $user_id );
+		}
+	}
+
+	/**
 	 * Check if the user has one of the provided roles.
 	 *
 	 * @param int   $user_id - The user ID.

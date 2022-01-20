@@ -41,6 +41,8 @@ class Settings {
 		add_filter( 'user_row_actions', [ $this, 'reactivate_user_link' ], 10, 2 );
 		add_action( 'admin_init', [ $this, 'add_admin_listeners' ] );
 
+		add_action( 'admin_init', [ __CLASS__, 'add_reactivate_all_listener' ] );
+
 		// Add a link to the plugin settings in the plugin row.
 		add_filter( 'plugin_action_links_' . \WPDIU::$plugin_basename, [ $this, 'add_plugin_settings_link' ] );
 	}
@@ -185,6 +187,17 @@ class Settings {
 	}
 
 	/**
+	 * Callback for the 'Reactivate Users' settings button.
+	 *
+	 * @return void
+	 */
+	public static function add_reactivate_all_listener() {
+		if ( isset( $_POST['action'] ) && isset( $_POST['_wpnonce'] ) && isset( $_POST['reactivate_users'] ) && current_user_can( 'manage_options' ) ) {
+			\WPDIU\User::reactivate_all_users();
+		}
+	}
+
+	/**
 	 * Show a reactivation admin notice.
 	 *
 	 * @return void
@@ -231,6 +244,7 @@ class Settings {
 				<?php
 					settings_fields( 'wpdiu_option_group' );
 					do_settings_sections( 'wp-disable-inactive-users-admin' );
+					do_settings_sections( 'wp-disable-inactive-users-admin_tools' );
 					submit_button();
 				?>
 			</form>
@@ -297,6 +311,21 @@ class Settings {
 			'wpdiu_setting_section'
 		);
 
+		add_settings_section(
+			'wpdiu_tools_section',
+			'Tools',
+			array( $this, 'wpdiu_tools_info' ),
+			'wp-disable-inactive-users-admin_tools'
+		);
+
+		add_settings_field(
+			'reactivate_all_users',
+			__( 'Reactivate all disabled users', 'wp-disable-inactive-users' ),
+			array( $this, 'reactivate_users_callback' ),
+			'wp-disable-inactive-users-admin_tools',
+			'wpdiu_tools_section'
+		);
+
 	}
 
 	/**
@@ -358,6 +387,15 @@ class Settings {
 	 * @return void
 	 */
 	public function wpdiu_section_info() {
+
+	}
+
+	/**
+	 * Tools section info.
+	 *
+	 * @return void
+	 */
+	public function wpdiu_tools_info() {
 
 	}
 
@@ -438,6 +476,19 @@ class Settings {
 		printf(
 			'<input id="days_limit" type="number" style="width: 4.5em;" name="wpdiu_settings[days_limit]" placeholder="90" min="1" id="days_limit" value="%s"> <p class="description">The number of days to wait to deactivate a user.</p>',
 			( isset( $this->wpdiu_options['days_limit'] ) ) ? esc_html( $this->wpdiu_options['days_limit'] ) : esc_html( \WPDIU::$days_limit )
+		);
+	}
+
+	/**
+	 * The 'Reactivate Users' button.
+	 *
+	 * @return void
+	 */
+	public function reactivate_users_callback() {
+		submit_button(
+			__( 'Reactivate Users', 'wp-disable-inactive-users' ),
+			'secondary large',
+			'reactivate_users'
 		);
 	}
 

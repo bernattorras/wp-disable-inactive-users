@@ -96,6 +96,7 @@ class WPDIU {
 		if ( isset( $settings['activation_date'] ) ) {
 			self::$activation_date = $settings['activation_date'];
 		}
+		\WPDIU\User::$disabled_users = get_option( 'wpdiu_disabled_users', array() );
 	}
 
 	/**
