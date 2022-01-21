@@ -23,12 +23,12 @@ If the plugin hasn't logged their last login (for example if they haven't logged
 ## Screenshots
 
 ### Settings (`Users > Disable Inactive Users`)
-![https://cdn-std.droplr.net/files/acc_766406/xaDJ7u](https://cdn-std.droplr.net/files/acc_766406/xaDJ7u+) 
-Full Size: https://cdn-std.droplr.net/files/acc_766406/xaDJ7u
+![https://d.pr/i/xaDJ7u](https://d.pr/i/xaDJ7u+) 
+Full Size: https://d.pr/i/xaDJ7u
 
 ### Users columns (`Users`)
-![https://cdn-std.droplr.net/files/acc_766406/3NrOVg](https://cdn-std.droplr.net/files/acc_766406/3NrOVg+) 
-Full Size: https://cdn-std.droplr.net/files/acc_766406/3NrOVg
+![https://d.pr/i/3NrOVg](https://d.pr/i/3NrOVg+) 
+Full Size: https://d.pr/i/3NrOVg
 
 ## Installation
 
