@@ -27,8 +27,8 @@ If the plugin hasn't logged their last login (for example if they haven't logged
 Full Size: https://d.pr/i/xaDJ7u
 
 ### Users columns (`Users`)
-![https://d.pr/i/3NrOVg](https://d.pr/i/3NrOVg+) 
-Full Size: https://d.pr/i/3NrOVg
+![https://d.pr/i/F9lvCR](https://d.pr/i/F9lvCR+) 
+Full Size: https://d.pr/i/F9lvCR
 
 ## Installation
 
