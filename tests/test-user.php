@@ -163,6 +163,34 @@ class UserTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Confirms that a user with an old 'wpdiu_last_login' date remains active if it has one of the roles that are selected in the 'dont_disable_roles' option.
+	 *
+	 * @return void
+	 */
+	public function test_user_with_role_isnt_disabled() {
+		$days_limit   = \WPDIU::$days_limit;
+		$current_time = new DateTime( current_time( 'mysql' ) );
+
+		// Add 1 day to the current date + the days limit to make sure that the date exceeds the limit to log in.
+		$older_date = $current_time->modify( '-' . ( $days_limit + 1 ) . ' day' )->format( 'Y-m-d H:i:s' );
+
+		update_user_meta( self::$test_user->ID, 'wpdiu_last_login', $older_date );
+
+		// Set the user role to one of the roles selected in the 'dont_disable_roles' option.
+		$options            = self::$settings_class::get_settings();
+		$dont_disable_roles = $options['dont_disable_roles'];
+		self::$test_user->add_role( $dont_disable_roles[0] );
+
+		$result = self::$user_class::check_if_user_active( self::$test_user, self::$test_user->user_pass );
+
+		// No error should be returned if the user is active.
+		$this->assertNotWPError( $result );
+
+		// The function should return the same user object.
+		$this->assertEquals( $result, self::$test_user );
+	}
+
+	/**
 	 * Tests if the get_days_between_dates returns the days correcty and if it returns a negative day if the first date is more recent than the second one.
 	 *
 	 * @return void
