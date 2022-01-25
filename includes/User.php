@@ -151,6 +151,7 @@ class User {
 	 */
 	public static function disable_user( $user, $is_bulk = false ) {
 
+		$disabled_users_ids  = get_option( 'wpdiu_disabled_users', array() );
 		$is_already_disabled = get_user_meta( $user->ID, 'wpdiu_disabled', true );
 
 		if ( ! $is_bulk ) {
@@ -163,6 +164,9 @@ class User {
 			// Set disabled and blocked date metas.
 			update_user_meta( $user->ID, 'wpdiu_disabled', true );
 			update_user_meta( $user->ID, 'wpdiu_date_blocked', current_time( 'mysql' ) );
+
+			$disabled_users_ids[] = $user->ID;
+			update_option( 'wpdiu_disabled_users', $disabled_users_ids );
 
 			// Send the blocked notifiction.
 			$settings = \WPDIU\Settings::get_settings();
