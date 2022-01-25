@@ -20,9 +20,16 @@ class UserTest extends WP_UnitTestCase {
 	/**
 	 * Instance of the \WPDIU\User class.
 	 *
-	 * @var [\WPDIU\Use]
+	 * @var [\WPDIU\User]
 	 */
 	public static $user_class;
+
+	/**
+	 * Instance of the \WPDIU\Settings class.
+	 *
+	 * @var [\WPDIU\Settings]
+	 */
+	public static $settings_class;
 
 	/**
 	 * A new test user created for this test case.
@@ -35,8 +42,11 @@ class UserTest extends WP_UnitTestCase {
 	 * Set up the test case initially.
 	 */
 	public static function set_up_before_class() {
-		self::$user_class = new \WPDIU\User();
-		self::$diu_class  = new \WPDIU();
+		self::$user_class     = new \WPDIU\User();
+		self::$diu_class      = new \WPDIU();
+		self::$settings_class = new \WPDIU\Settings();
+
+		self::$settings_class->set_default_opptions();
 
 		self::create_test_user();
 	}
@@ -95,19 +105,19 @@ class UserTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Check if the update_last_login function is storing the current time in mysql format in the 'last_login' user meta.
+	 * Check if the update_last_login function is storing the current time in mysql format in the 'wpdiu_last_login' user meta.
 	 *
 	 * @return void
 	 */
 	public function test_last_login_meta() {
 		self::$user_class::update_last_login( self::$test_user->user_login, self::$test_user );
-		$last_login = get_user_meta( self::$test_user->ID, 'last_login', true );
+		$last_login = get_user_meta( self::$test_user->ID, 'wpdiu_last_login', true );
 
 		$this->assertSame( $last_login, current_time( 'mysql' ) );
 	}
 
 	/**
-	 * Confirms that the user (with an updated 'last_login' date) is considered active.
+	 * Confirms that the user (with an updated 'wpdiu_last_login' date) is considered active.
 	 *
 	 * @return void
 	 */
@@ -122,7 +132,7 @@ class UserTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Confirms that a user with an old 'last_login' date is disabled.
+	 * Confirms that a user with an old 'wpdiu_last_login' date is disabled.
 	 *
 	 * @return void
 	 */
@@ -134,11 +144,11 @@ class UserTest extends WP_UnitTestCase {
 		// Add 1 day to the current date + the days limit to make sure that the date exceeds the limit to log in.
 		$older_date = $current_time->modify( '-' . ( $days_limit + 1 ) . ' day' )->format( 'Y-m-d H:i:s' );
 
-		update_user_meta( self::$test_user->ID, 'last_login', $older_date );
+		update_user_meta( self::$test_user->ID, 'wpdiu_last_login', $older_date );
 
 		$result = self::$user_class::check_if_user_active( self::$test_user, self::$test_user->user_pass );
 
-		// An error should be returned if the user's 'last_login' date exceeds the days limit.
+		// An error should be returned if the user's 'wpdiu_last_login' date exceeds the days limit.
 		$this->assertWPError( $result );
 		$this->assertSame( $result->get_error_code(), 'inactive_user' );
 		$this->assertSame(
