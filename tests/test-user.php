@@ -191,6 +191,29 @@ class UserTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests if a user is disabled and reactivated correctly.
+	 *
+	 * @return void
+	 */
+	public function test_reactivate_user() {
+
+		// Deactivate the user.
+		self::$user_class::disable_user( self::$test_user, true );
+
+		// Confirm that the user is deactivated (WP_Error returned).
+		$result = self::$user_class::check_if_user_active( self::$test_user, self::$test_user->user_pass );
+		$this->assertWPError( $result );
+
+		// Reactivate the user.
+		self::$user_class::reactivate_user( self::$test_user->ID );
+
+		// Confirm that the user is active (WP_User returned).
+		$result = self::$user_class::check_if_user_active( self::$test_user, self::$test_user->user_pass );
+
+		$this->assertNotWPError( $result );
+	}
+
+	/**
 	 * Tests if the get_days_between_dates returns the days correcty and if it returns a negative day if the first date is more recent than the second one.
 	 *
 	 * @return void
