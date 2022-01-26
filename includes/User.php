@@ -262,7 +262,7 @@ class User {
 			}
 		}
 
-		if ( ( 'administrator' === $send_to || 'all' === $send_to ) && ! empty( $new_disabled_users ) ) {
+		if ( ( 'administrator' === $send_to || 'all' === $send_to ) && 0 !== count( $new_disabled_users ) ) {
 			// Schedule the admin notification.
 			\WPDIU\Event::schedule(
 				time(),
