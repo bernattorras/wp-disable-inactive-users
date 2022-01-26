@@ -26,8 +26,8 @@ If the plugin hasn't logged their last login (for example if they haven't logged
 ## Screenshots
 
 ### Settings (`Users > Disable Inactive Users`)
-![https://d.pr/i/1RiXxM](https://d.pr/i/1RiXxM+) 
-Full Size: https://d.pr/i/1RiXxM
+![https://d.pr/i/uqblZq](https://d.pr/i/uqblZq+) 
+Full Size: https://d.pr/i/uqblZq
 
 ### Users columns (`Users`)
 ![https://d.pr/i/F9lvCR](https://d.pr/i/F9lvCR+) 
@@ -42,6 +42,26 @@ A build step is required when directly using the files in this repository as a p
 
 Once the plugin is active, it will start working automatically with the default settings.
 If wanted, it can be configured from `Users > Disable Inactive Users`.
+
+## Sending email notifications
+This plugin has an option to send email notifications to the users that are disabled or reminder notifications before they are disabled. All these notifications are scheduled as background tasks to avoid a negative impact in the performance of the site. 
+
+The notifications are sent using the built-in [wp_mail](https://developer.wordpress.org/reference/functions/wp_mail/) functionality, so it is highly recommended to use an SMTP server to get a better mailing experience and avoid these notifications to land in the SPAM folder.
+
+You can find some third-party SMTP plugins [here](https://wordpress.org/plugins/search/smtp). 
+
+**Important**: If you have a large number of users, disabling the notification functionality is recommended to avoid massive notifications and a negative impact in your site's performance.
+
+## Checking the scheduled events
+This plugin make use of the Wordpress WP Cron Events to schedule the user notifications in the background and some other tasks like the ones that send reminder notifications or disable the users automatically.
+
+If you want to check the scheduled events, you can install a plugin like [WP Crontrol](https://wordpress.org/plugins/wp-crontrol/) and search for all the plugin events (they all start with the `wpdiu_` prefix) in the `Tools > Cron Events` page.
+
+You can learn more about this WordPress functionality [here](https://developer.wordpress.org/plugins/cron/scheduling-wp-cron-events/).
+
+Here's an example of the scheduled events that the plugin uses:
+![https://d.pr/i/91dkeM](https://d.pr/i/91dkeM+) 
+Full Size: https://d.pr/i/91dkeM
 
 ## Unit tests
 Assuming that you've already cloned the plugin repository and installed the required dependencies using composer, you can now start running the PHP unit tests in your local dev environment.
