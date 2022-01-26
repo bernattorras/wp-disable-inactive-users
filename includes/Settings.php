@@ -454,7 +454,7 @@ class Settings {
 	 */
 	public function send_reminders_callback() {
 		printf(
-			'<input type="checkbox" name="wpdiu_settings[send_reminder_notifications]" id="send_reminder_notifications" %s> <label for="send_reminder_notifications">Send a notification to the users one day prior to their deactivation as a reminder.</label>',
+			'<input type="checkbox" name="wpdiu_settings[send_reminder_notifications]" id="send_reminder_notifications" %s> <label for="send_reminder_notifications">Send a reminder notification to the users one day prior to their deactivation.</label>',
 			( isset( $this->wpdiu_options['send_reminder_notifications'] ) && 'on' === $this->wpdiu_options['send_reminder_notifications'] ) ? 'checked' : ''
 		);
 		?>
