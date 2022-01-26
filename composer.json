@@ -13,6 +13,9 @@
             "email": "bernattorras@gmail.com"
         }
     ],
+    "require": {
+        "php": ">= 7.4"
+      },
     "require-dev": {
         "wp-coding-standards/wpcs": "^2.2",
         "phpunit/phpunit": "^6.5 || ^7",
