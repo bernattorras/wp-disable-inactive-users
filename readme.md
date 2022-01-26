@@ -14,12 +14,15 @@ If the plugin hasn't logged their last login (for example if they haven't logged
 *   Their content (pages, posts, comments, etc) will still be accessible.
 *   The plugin will disable the users when they try to log in again.
 *   An option can be enabled to check the users daily and bulk disable them automatically.
-*   Can specify which roles shouldn't be disbled (`Administrator` and `Editor` by default.
+*   Can specify which roles shouldn't be disabled (`Administrator` and `Editor` by default).
 *   Disable email notifications can be sent to the customer and the site administrator.
 *   The limit of days to wait until deactivating a user can be changed.
 *   The plugin activation date (used for deactivating users that haven't logged in since the plugin was activated) can be changed as well.
+*   A button to reactivate all the disabled users.
 *   A new `Disabled` column is added to the Users page to show the status of each user.
-*   A new `Last login` column is added to the Users page to show the last login date and the date that they got disa
+*   A new `Last login` column is added to the Users page to show the last login date and the date that they got disabled.
+*   A link to reactivate each disabled user individually.
+
 ## Screenshots
 
 ### Settings (`Users > Disable Inactive Users`)
@@ -41,7 +44,7 @@ Once the plugin is active, it will start working automatically with the default 
 If wanted, it can be configured from `Users > Disable Inactive Users`.
 
 ## Unit tests
-Assuming that you've already clonned the plugin repository and installed the required dependencies using composer, you can now start running the PHP unit tests in your local dev environment.
+Assuming that you've already cloned the plugin repository and installed the required dependencies using composer, you can now start running the PHP unit tests in your local dev environment.
 1. Run `bin/install-wp-tests.sh <db-name> <db-user> <db-pass> [db-host] [wp-version] [skip-database-creation]` e.g. `bin/install-wp-tests.sh wordpress_tests root root localhost latest` to install the unit tests.
 2. Run `vendor/bin/phpunit` to run all unit tests.
 
