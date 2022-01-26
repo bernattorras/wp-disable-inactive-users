@@ -49,4 +49,46 @@ class Event {
 		wp_clear_scheduled_hook( $hook );
 	}
 
+	/**
+	 * Unschedules all the plugin events (the ones that start with 'wpdiu_').
+	 *
+	 * @return void
+	 */
+	public static function unschedule_all_wpdiu_events() {
+		// Get all the 'wpdiu_' events.
+		$wpdiu_events = self::get_wpdiu_events();
+
+		// Get their name from their args and unschedule them.
+		foreach ( $wpdiu_events as $key => $event ) {
+			$event_name = key( $event );
+			self::unschedule( $event_name );
+		}
+	}
+
+	/**
+	 * Returns all the events scheduled by this plugin (the ones that start with 'wpdiu_').
+	 *
+	 * @return array - An array containing the plguin scheduled events.
+	 */
+	public static function get_wpdiu_events() {
+		// Get all the cron events from the 'cron' option.
+		$cron_events = get_option( 'cron', array() );
+
+		// Filter the array to get only the hooks that start with '_wpdiu'.
+		$wpdiu_events = array_filter( $cron_events, [ __CLASS__, 'filter_for_wpdiu_events' ] );
+
+		return $wpdiu_events;
+	}
+
+	/**
+	 * Filters an array to return only the items that have an initial key that starts with 'wpdiu_'.
+	 *
+	 * @param array $event - A scheduled event.
+	 * @return array the filtered array item.
+	 */
+	public function filter_for_wpdiu_events( $event ) {
+
+		return ( is_array( $event ) && stripos( key( $event ), 'wpdiu_' ) === 0 );
+	}
+
 }

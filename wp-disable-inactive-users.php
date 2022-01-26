@@ -121,30 +121,11 @@ class WPDIU {
 	 * @return void
 	 */
 	public function wpdiu_deactivate() {
-		// Get all the cron events from the 'cron' option.
-		$cron_events = get_option( 'cron', array() );
-
-		// Filter the array to get only the hooks that start with '_wpdiu'.
-		$wpdiu_events = array_filter( $cron_events, [ $this, 'filter_for_wpdiu_events' ] );
-
-		// Get their name from their args and unschedule them.
-		foreach ( $wpdiu_events as $key => $event ) {
-			$event_name = key( $event );
-			\WPDIU\Event::unschedule( $event_name );
-		}
-	}
-
-	/**
-	 * Filters an array to return only the items that have an initial key that starts with 'wpdiu_'.
-	 *
-	 * @param array $event
-	 * @return array the filtered array item.
-	 */
-	public function filter_for_wpdiu_events( $event ) {
-
-		return ( is_array( $event ) && stripos( key( $event ), 'wpdiu_' ) === 0 );
+		// Unschedule all the plugin events (the ones that start with 'wpdiu_').
+		\WPDIU\Event::unschedule_all_wpdiu_events();
 	}
 
 }
+
 $wpdiu = new WPDIU();
 $wpdiu->init();
