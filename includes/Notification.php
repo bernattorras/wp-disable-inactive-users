@@ -77,6 +77,11 @@ class Notification {
 				'administrator'      => __( '<p>A new user account has been disabled.</p><p><strong>User:</strong> %1$s.</p><p><a href="%2$s">Manage users</a></p>', 'wp-disable-inactive-users' ),
 				/* translators: %1$s: An HTML list of the disabled users. %3$s: A link to the Users page. */
 				'bulk_administrator' => __( '<p>The following accounts have been disabled:</p>%1$s<p><a href="%2$s">Manage users</a></p>', 'wp-disable-inactive-users' ),
+				'reminder'           => sprintf(
+					/* translators: %s: The site name. */
+					__( 'Your account at %s will be disabled tomorrow if you don\'t log in in the next hours. Please remember to log in today if you want to keep your account active.', 'wp-disable-inactive-users' ),
+					$this->site_name
+				),
 			)
 		);
 
@@ -90,6 +95,11 @@ class Notification {
 				),
 				'administrator'      => __( 'A new user account has been disabled', 'wp-disable-inactive-users' ),
 				'bulk_administrator' => __( 'New user accounts have been disabled', 'wp-disable-inactive-users' ),
+				'reminder'           => sprintf(
+					/* translators: %s: The site name. */
+					__( 'Your account at %s will be disabled tomorrow.', 'wp-disable-inactive-users' ),
+					$this->site_name
+				),
 			)
 		);
 
@@ -101,9 +111,9 @@ class Notification {
 	 * @return void
 	 */
 	public function add_listeners() {
-		add_action( 'wpdiu_send_reminder_notifications', [ $this, 'send_reminder_notifications' ], 10, 2 );
 		add_action( 'wpdiu_send_disabled_notifications', [ $this, 'send_disabled_notifications' ], 10, 2 );
 		add_action( 'wpdiu_send_bulk_disabled_notifications', [ $this, 'send_bulk_disabled_notifications' ], 10, 2 );
+		add_action( 'wpdiu_send_reminder_notification', [ $this, 'send_reminder_notification' ], 10, 2 );
 	}
 
 	/**
@@ -143,6 +153,19 @@ class Notification {
 			wp_mail( $email_params['to'], $email_params['subject'], $email_params['body'], $email_params['headers'] );
 		}
 
+	}
+
+	/**
+	 * Send a reminder deactivation email to the customer.
+	 *
+	 * @param int $user_id - The user's ID.
+	 * @return void
+	 */
+	public function send_reminder_notification( $user_id ) {
+		$params = $this->get_notification_params( 'reminder', $user_id );
+		foreach ( $params as $email => $email_params ) {
+			wp_mail( $email_params['to'], $email_params['subject'], $email_params['body'], $email_params['headers'] );
+		}
 	}
 
 	/**
@@ -210,6 +233,14 @@ class Notification {
 						$user_email,
 						admin_url( 'users.php' )
 					),
+					'headers' => $this->headers,
+				);
+				break;
+			case 'reminder':
+				$params['reminder'] = array(
+					'to'      => $user_email,
+					'subject' => $this->subject['reminder'],
+					'body'    => $this->body['reminder'],
 					'headers' => $this->headers,
 				);
 				break;

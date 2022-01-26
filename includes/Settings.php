@@ -311,6 +311,14 @@ class Settings {
 			'wpdiu_setting_section'
 		);
 
+		add_settings_field(
+			'send_reminder_notifications',
+			__( 'Send reminder notifications', 'wp-disable-inactive-users' ),
+			array( $this, 'send_reminders_callback' ),
+			'wp-disable-inactive-users-admin',
+			'wpdiu_setting_section'
+		);
+
 		add_settings_section(
 			'wpdiu_tools_section',
 			'Tools',
@@ -364,6 +372,10 @@ class Settings {
 
 		if ( isset( $input['disable_automatically'] ) ) {
 			$sanitary_values['disable_automatically'] = $input['disable_automatically'];
+		}
+
+		if ( isset( $input['send_reminder_notifications'] ) ) {
+			$sanitary_values['send_reminder_notifications'] = $input['send_reminder_notifications'];
 		}
 
 		if ( isset( $input['disabled_notification'] ) ) {
@@ -436,6 +448,21 @@ class Settings {
 	}
 
 	/**
+	 * Send reminder notifications field.
+	 *
+	 * @return void
+	 */
+	public function send_reminders_callback() {
+		printf(
+			'<input type="checkbox" name="wpdiu_settings[send_reminder_notifications]" id="send_reminder_notifications" %s> <label for="send_reminder_notifications">Send a notification to the users one day prior to their deactivation as a reminder.</label>',
+			( isset( $this->wpdiu_options['send_reminder_notifications'] ) && 'on' === $this->wpdiu_options['send_reminder_notifications'] ) ? 'checked' : ''
+		);
+		?>
+		<p class="description"><?php _e( 'It is highly recommended to use an SMTP server to send the notifications and prevent them to land in the SPAM folder. You can find some third-party SMTP plugins <a href="https://wordpress.org/plugins/search/smtp/">here</a>.', 'wp-disable-inactive-users' ); ?></p>
+		<?php
+	}
+
+	/**
 	 * Disabled notifications field.
 	 *
 	 * @return void
@@ -452,6 +479,7 @@ class Settings {
 			<?php $selected = ( isset( $this->wpdiu_options['disabled_notification'] ) && 'all' === $this->wpdiu_options['disabled_notification'] ) ? 'selected' : ''; ?>
 			<option value="all" <?php echo esc_attr( $selected ); ?>><?php echo esc_html_e( 'Send it to both', 'wp-disable-inactive-users' ); ?></option>
 		</select> 
+		<p class="description"><?php _e( 'It is highly recommended to use an SMTP server to send the notifications and prevent them to land in the SPAM folder. You can find some third-party SMTP plugins <a href="https://wordpress.org/plugins/search/smtp/">here</a>.', 'wp-disable-inactive-users' ); ?></p>
 		<?php
 	}
 

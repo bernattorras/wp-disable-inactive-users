@@ -48,6 +48,7 @@ class User {
 			);
 		}
 
+		// Disable users automatically.
 		if ( isset( $options['disable_automatically'] ) && 'on' === $options['disable_automatically'] ) {
 
 			// The callback for the 'wpdiu_bulk_disable_users' event.
@@ -61,6 +62,22 @@ class User {
 			);
 		} else {
 			\WPDIU\Event::unschedule( 'wpdiu_disable_users_automatically' );
+		}
+
+		// Send reminder notifications.
+		if ( isset( $options['send_reminder_notifications'] ) && 'on' === $options['send_reminder_notifications'] ) {
+
+			// The callback for the 'wpdiu_bulk_disable_users' event.
+			add_action( 'wpdiu_send_reminder_notifications', [ __CLASS__, 'send_reminder_notifications' ] );
+
+			// Schedule the daily event to disable users automatically.
+			\WPDIU\Event::schedule(
+				time() + ( 60 * 60 ),
+				'daily',
+				'wpdiu_send_reminder_notifications'
+			);
+		} else {
+			\WPDIU\Event::unschedule( 'wpdiu_send_reminder_notifications' );
 		}
 
 	}
@@ -95,7 +112,7 @@ class User {
 			return $user;
 		}
 
-		if ( $disabled || ! self::is_user_active( $user ) ) {
+		if ( $disabled || ! self::is_user_active( $user, 'now' ) ) {
 			self::disable_user( $user, false );
 			return self::throw_inactive_error( $user );
 		}
@@ -107,14 +124,20 @@ class User {
 	 * Checks if the provided user is active.
 	 *
 	 * @param \WP_User $user - The requested user.
+	 * @param string   $date - The date to check against (by default 'now').
 	 * @return boolean - True if the user is active. False otherwise ($days_limit exceeded since last login).
 	 */
-	public static function is_user_active( WP_User $user ) {
+	public static function is_user_active( WP_User $user, $date = 'now' ) {
 
 		$days_limit = \WPDIU::$days_limit;
 		$is_active  = true;
-		$now        = current_time( 'mysql' );
-		$now_date   = new DateTime( $now );
+
+		// If 'now' or no $date is provided, let's use the current_time.
+		if ( '' === $date || 'now' === $date ) {
+			$date = current_time( 'mysql' );
+		}
+
+		$now_date = new DateTime( $date );
 
 		// Check if user has last_login meta.
 		$user_last_login = get_user_meta( $user->ID, 'wpdiu_last_login', true );
@@ -216,7 +239,7 @@ class User {
 
 		foreach ( $active_users as $user ) {
 			// Check if each user should still be active. If not, disable it.
-			$is_active = self::is_user_active( $user );
+			$is_active = self::is_user_active( $user, 'now' );
 			if ( ! $is_active ) {
 
 				// Disable the user.
@@ -255,6 +278,43 @@ class User {
 		// Update the disabled users option with all the recently disabled users.
 		$disabled_users_ids = array_merge( $disabled_users_ids, $new_disabled_users );
 		update_option( 'wpdiu_disabled_users', $disabled_users_ids );
+	}
+
+	/**
+	 * Check for the users that will be deactivated tomorrow and schedule a reminder notification for them.
+	 *
+	 * @return void
+	 */
+	public static function send_reminder_notifications() {
+		$options                = \WPDIU\Settings::get_settings();
+		$dont_disable_roles     = $options['dont_disable_roles'];
+		$disabled_users_ids     = get_option( 'wpdiu_disabled_users' );
+		$users_will_be_disabled = array();
+
+		// Get a list of all the active users that aren't already disabled and that don't have the roles specified in the plugin settings.
+		$active_users_query = new WP_User_Query(
+			array(
+				'exclude'      => $disabled_users_ids,
+				'role__not_in' => $dont_disable_roles,
+			)
+		);
+
+		$active_users = $active_users_query->get_results();
+
+		foreach ( $active_users as $user ) {
+			// Check if each user will still be active tomorrow. If not, send a reminder.
+			$is_active = self::is_user_active( $user, 'tomorrow' );
+			if ( ! $is_active ) {
+				\WPDIU\Event::schedule(
+					time(),
+					'single',
+					'wpdiu_send_reminder_notification',
+					$args = array(
+						'user_id' => $user->ID,
+					)
+				);
+			}
+		}
 	}
 
 	/**
