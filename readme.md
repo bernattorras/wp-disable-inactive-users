@@ -23,19 +23,26 @@ If the plugin hasn't logged their last login (for example if they haven't logged
 ## Screenshots
 
 ### Settings (`Users > Disable Inactive Users`)
-![https://d.pr/i/xaDJ7u](https://d.pr/i/xaDJ7u+) 
-Full Size: https://d.pr/i/xaDJ7u
+![https://d.pr/i/1RiXxM](https://d.pr/i/1RiXxM+) 
+Full Size: https://d.pr/i/1RiXxM
 
 ### Users columns (`Users`)
 ![https://d.pr/i/F9lvCR](https://d.pr/i/F9lvCR+) 
 Full Size: https://d.pr/i/F9lvCR
 
 ## Installation
+A build step is required when directly using the files in this repository as a plugin.
+1. Install prerequisites: composer, git, svn, wget or curl, mysqladmin
+2. Clone this repository into the plugins directory.
+3. Run `composer install`
+4. Activate the plugin from the Plugins page.
 
-By deafult, this plugin doesn't require any configuration, as it will start working with the default settings once it is installed and active.
+Once the plugin is active, it will start working automatically with the default settings.
 If wanted, it can be configured from `Users > Disable Inactive Users`.
- 
-Steps to install the plugin:
 
-1. Upload the `wp-disable-inactive-users` folder to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
+## Unit tests
+Assuming that you've already clonned the plugin repository and installed the required dependencies using composer, you can now start running the PHP unit tests in your local dev environment.
+1. Run `bin/install-wp-tests.sh <db-name> <db-user> <db-pass> [db-host] [wp-version] [skip-database-creation]` e.g. `bin/install-wp-tests.sh wordpress_tests root root localhost latest` to install the unit tests.
+2. Run `vendor/bin/phpunit` to run all unit tests.
+
+For more info see: [WordPress.org > Plugin Unit Tests](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#running-tests-locally).
