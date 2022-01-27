@@ -28,14 +28,14 @@ class WPDIU {
 	/**
 	 * Plugin activation date
 	 *
-	 * @var [time]
+	 * @var string
 	 */
 	public static $activation_date;
 
 	/**
 	 * The plugin basename.
 	 *
-	 * @var [type]
+	 * @var string
 	 */
 	public static $plugin_basename;
 
@@ -64,7 +64,7 @@ class WPDIU {
 
 		add_action( 'init', [ 'WPDIU\User', 'init' ], 10, 2 );
 
-		// Validate the user to check if it's active.
+		// Validate the user before they log in to check if it should still be active.
 		add_action( 'wp_authenticate_user', [ 'WPDIU\User', 'check_if_user_active' ], 10, 2 );
 
 		// Update the last login meta when the user logs in.
@@ -116,12 +116,12 @@ class WPDIU {
 
 	/**
 	 * Deactivation functionality
-	 * - Unschedules the events that start with 'wpdiu_'.
+	 * - Unschedules all the plugin events (the ones that start with 'wpdiu_').
 	 *
 	 * @return void
 	 */
 	public function wpdiu_deactivate() {
-		// Unschedule all the plugin events (the ones that start with 'wpdiu_').
+		// Unschedule the events that start with 'wpdiu_'.
 		\WPDIU\Event::unschedule_all_wpdiu_events();
 	}
 
