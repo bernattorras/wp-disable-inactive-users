@@ -68,4 +68,4 @@ Assuming that you've already cloned the plugin repository and installed the requ
 1. Run `bin/install-wp-tests.sh <db-name> <db-user> <db-pass> [db-host] [wp-version] [skip-database-creation]` e.g. `bin/install-wp-tests.sh wordpress_tests root root localhost latest` to install the unit tests.
 2. Run `vendor/bin/phpunit` to run all unit tests.
 
-For more info see: [WordPress.org > Plugin Unit Tests](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#running-tests-locally). 
+For more info see: [WordPress.org > Plugin Unit Tests](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#running-tests-locally).
