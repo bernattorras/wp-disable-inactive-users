@@ -5,6 +5,7 @@
 	<!-- What to scan -->
 	<file>.</file>
 	<exclude-pattern>/vendor/</exclude-pattern>
+	<exclude-pattern>./tests/*</exclude-pattern>
 	<exclude-pattern>/node_modules/</exclude-pattern>
 
 	<!-- How to scan -->
@@ -19,29 +20,24 @@
 	<!-- Rules: Check PHP version compatibility -->
 	<!-- https://github.com/PHPCompatibility/PHPCompatibility#sniffing-your-code-for-compatibility-with-specific-php-versions -->
 	<config name="testVersion" value="5.6-"/>
-	<!-- https://github.com/PHPCompatibility/PHPCompatibilityWP -->
-	<rule ref="PHPCompatibilityWP"/>
 
 	<!-- Rules: WordPress Coding Standards -->
 	<!-- https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards -->
 	<!-- https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties -->
 	<config name="minimum_supported_wp_version" value="4.6"/>
-	<rule ref="WordPress"/>
-	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
-		<properties>
-			<!-- Value: replace the function, class, and variable prefixes used. Separate multiple prefixes with a comma. -->
-			<property name="prefixes" type="array" value="my-plugin"/>
-		</properties>
+	
+	<rule ref="WordPress">
+		<!-- Not always necessary -->
+		<exclude name="WordPress.Files.FileName"/>
+		<!-- I like some blank lines -->
+		<exclude name="WordPress.WhiteSpace.ControlStructureSpacing.BlankLineBeforeEnd"/>
+		<exclude name="WordPress.WhiteSpace.ControlStructureSpacing.BlankLineAfterStart"/>
 	</rule>
+
+	<!-- Set the appropriate text domain. -->
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<!-- Value: replace the text domain used. -->
-			<property name="text_domain" type="array" value="my-plugin"/>
-		</properties>
-	</rule>
-	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing">
-		<properties>
-			<property name="blank_line_check" value="true"/>
+			<property name="text_domain" type="array" value="wp-disable-inactive-users"/>
 		</properties>
 	</rule>
 </ruleset>
