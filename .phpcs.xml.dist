@@ -32,6 +32,9 @@
 		<!-- I like some blank lines -->
 		<exclude name="WordPress.WhiteSpace.ControlStructureSpacing.BlankLineBeforeEnd"/>
 		<exclude name="WordPress.WhiteSpace.ControlStructureSpacing.BlankLineAfterStart"/>
+
+		<!-- I like short array syntax -->
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found"/>
 	</rule>
 
 	<!-- Set the appropriate text domain. -->
