@@ -37,8 +37,8 @@ job-references:
           name: "Run PHPCS"
           command: |
             ls $HOME/.composer/vendor/wp-coding-standards/wpcs
-            phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs
-            vendor/bin/phpcs
+            phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs
+            phpcs
       - run:
           name: "Run Tests"
           command: |
