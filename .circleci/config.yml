@@ -2,11 +2,6 @@ workflows:
   version: 2
   main:
     jobs:
-      # - php56-build
-      # - php70-build
-      # - php71-build
-      # - php72-build
-      # - php73-build
       - php74-build
 
 version: 2
@@ -51,6 +46,7 @@ job-references:
             phpunit
             WP_MULTISITE=1 phpunit
 
+jobs:
   php74-build:
     <<: *php_job
     docker:
