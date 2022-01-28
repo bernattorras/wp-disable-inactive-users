@@ -35,9 +35,9 @@ jobs:
       - run:
           name: "Install composer dependencies"
           command: composer install -n -o
-      - run:
-          name: Run PHPCS
-          command: phpcs
+     # - run:
+         # name: Run PHPCS
+         # command: phpcs
       - run:
           name: "Run PHPUnit - Single Site"
           command: |
