@@ -34,6 +34,11 @@ job-references:
       - run: *setup_environment
       - run: *install_dependencies
       - run:
+          name: "Run PHPCS"
+          command: |
+            ls vendor/bin/phpcs
+            vendor/bin/phpcs --standard=WordPress -sp --basepath=. --extensions=php --ignore=vendor
+      - run:
           name: "Run Tests"
           command: |
             vendor/bin/phpcs --standard=WordPress -sp --basepath=. --extensions=php --ignore=vendor
