@@ -35,6 +35,9 @@ job-references:
       - run:
           name: "Run Tests"
           command: |
+            composer global require "phpunit/phpunit=^6.5 || ^7"
+            composer global require wp-coding-standards/wpcs
+            composer global require "yoast/phpunit-polyfills=^1.0"
             composer install -n -o
             vendor/bin/phpcs -i
             vendor/bin/phpcs
