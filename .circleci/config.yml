@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/php:7.4.26-node
+      - image: circleci/php:7.4.26
       - image: circleci/mysql:5.7
 
     branches:
