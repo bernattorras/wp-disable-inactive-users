@@ -24,14 +24,13 @@ jobs:
       - run:
           name: "Install Dependencies"
           command: |
+            composer install --prefer-source --no-interaction --no-dev
             sudo apt-get update && sudo apt-get install subversion
             sudo docker-php-ext-install mysqli
             sudo apt-get update && sudo apt-get install default-mysql-client
             git submodule update --init
             sudo apt-get update -y
-      - run:
-          name: "Install composer dependencies"
-          command: composer install -n -o
+      
      # - run:
          # name: Run PHPCS
          # command: phpcs
