@@ -56,7 +56,7 @@ class Settings {
 	public function add_plugin_settings_link( $links ) {
 		$links[] = '<a href="' .
 			admin_url( 'users.php?page=wp-disable-inactive-users' ) .
-			'">' . __( 'Settings' ) . '</a>';
+			'">' . __( 'Settings', 'wp-disable-inactive-users' ) . '</a>';
 		return $links;
 	}
 
