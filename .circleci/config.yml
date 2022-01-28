@@ -37,7 +37,7 @@ job-references:
           name: "Run PHPCS"
           command: |
             ls vendor/wp-coding-standards/wpcs
-            vendor/bin/phpcs --standard=WordPress -sp --basepath=. --extensions=php --ignore=vendor
+            vendor/bin/phpcs
       - run:
           name: "Run Tests"
           command: |
