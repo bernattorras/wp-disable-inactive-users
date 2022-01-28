@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/php:7.2
+      - image: circleci/php:7.4.26-node
       - image: circleci/mysql:5.7
 
     branches:
@@ -26,12 +26,7 @@ jobs:
           command: |
             sudo apt-get update && sudo apt-get install subversion
             sudo docker-php-ext-install mysqli
-            sudo sh -c "printf '\ndeb http://ftp.us.debian.org/debian sid main\n' >> /etc/apt/sources.list"
             sudo apt-get update && sudo apt-get install default-mysql-client
-            git submodule update --init
-            composer global require "phpunit/phpunit=5.7.*"
-            composer global require wp-coding-standards/wpcs
-            phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/WordPress
       - run:
           name: "Install composer dependencies"
           command: composer install -n -o
