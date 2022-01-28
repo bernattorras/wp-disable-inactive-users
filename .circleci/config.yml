@@ -40,7 +40,7 @@ job-references:
             composer global require "yoast/phpunit-polyfills=^1.0"
             composer install -n -o
             vendor/wp-coding-standards/wpcs -i
-            vendor/bin/phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs
+            vendor/bin/phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs/WordPress
             vendor/wp-coding-standards/wpcs -i
             vendor/wp-coding-standards/wpcs --help
             vendor/bin/phpcs
