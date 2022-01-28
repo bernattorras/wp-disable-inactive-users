@@ -28,7 +28,7 @@ job-references:
       sudo -E docker-php-ext-install mysqli
       sudo sh -c "printf '\ndeb http://ftp.us.debian.org/debian sid main\n' >> /etc/apt/sources.list"
       sudo apt-get update && sudo apt-get install default-mysql-client
-      sudo pear install php_codesniffer
+      sudo apt-get install -y php-codesniffer
 
   php_job: &php_job
     environment:
